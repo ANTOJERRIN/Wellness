@@ -1,6 +1,111 @@
 # 🩺 MED GENIE
 ### Your Intelligent AI Health Assistant with Secure Authentication
 
+---
+
+## 🚀 Flutter + FastAPI Stack Setup (Primary)
+
+> This is the **production stack**: Flutter frontend + Python FastAPI backend.
+
+### Prerequisites
+- **Python** 3.11+
+- **Flutter** 3.x (with Dart SDK)
+- **Git**
+
+### 1. Start the FastAPI Backend
+```bash
+cd backend
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+Create `backend/.env`:
+```env
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+DATABASE_URL=sqlite:///./medgenie.db
+GOOGLE_AI_API_KEY=your_gemini_api_key_here
+API_SETU_KEY=                   # Optional: OGD hospital API key from data.gov.in
+```
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 9005 --reload
+```
+Backend runs at: `http://127.0.0.1:9005`
+API docs: `http://127.0.0.1:9005/docs`
+
+### 2. Start the Flutter Frontend
+```bash
+cd frontend
+flutter pub get
+flutter run -d chrome        # Web
+# or
+flutter run -d windows       # Windows desktop
+```
+
+### 3. API Endpoints (FastAPI Backend)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | ❌ | Register new user |
+| POST | `/api/auth/login` | ❌ | Login + get JWT tokens |
+| POST | `/api/auth/logout` | ✅ | Logout current session |
+| GET | `/api/user/profile` | ✅ | Get health profile |
+| PUT | `/api/user/profile` | ✅ | Update health profile |
+| POST | `/api/chat/sessions` | ✅ | Create a new chat session |
+| GET | `/api/chat/sessions` | ✅ | List all chat sessions |
+| POST | `/api/chat/sessions/{id}/messages` | ✅ | Send message + get AI response |
+| POST | `/api/risk/predict` | ✅ | Heart risk prediction (ML) |
+| POST | `/api/specialist/recommend` | ❌ | Get specialist recommendations |
+| GET | `/api/hospitals/nearby?state=...` | ❌ | Find nearby hospitals |
+| POST | `/api/newsletter/subscribe` | ❌ | Subscribe to newsletter |
+| POST | `/api/contact` | ❌ | Submit contact form |
+
+### 4. Run Backend Tests
+```bash
+cd backend
+venv\Scripts\python -m unittest test_main.py -v
+# Expected: 10 tests, all OK
+```
+
+### 5. Flutter Project Structure
+```
+frontend/lib/
+├── main.dart                        # Slim entry point
+├── core/
+│   ├── network/dio_provider.dart    # Dio + SecureStorage setup
+│   └── theme/
+│       ├── app_theme.dart           # Dark + Light themes
+│       └── theme_provider.dart      # Riverpod theme toggle
+└── features/
+    ├── auth/
+    │   ├── providers/auth_provider.dart
+    │   └── presentation/auth_screen.dart
+    ├── chat/
+    │   ├── providers/chat_provider.dart
+    │   └── presentation/
+    │       ├── dashboard_screen.dart    # Main chat (+ voice input)
+    │       └── chat_history_drawer.dart # Past sessions drawer
+    ├── profile/
+    │   └── presentation/health_profile_screen.dart
+    ├── risk_assessment/
+    │   └── presentation/heart_risk_screen.dart  # ML cardiac risk
+    ├── landing/
+    │   └── presentation/landing_screen.dart      # Public landing page
+    ├── specialist/
+    │   └── presentation/specialist_screen.dart   # Specialist + hospitals
+    └── contact/
+        └── presentation/contact_screen.dart
+```
+
+---
+
+
+
 <div align="center">
 
 ![GSSoC'26](https://img.shields.io/badge/GSSoC-2026-orange)
