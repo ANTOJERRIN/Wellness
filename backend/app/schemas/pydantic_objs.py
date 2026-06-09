@@ -89,3 +89,23 @@ class RiskFeatures(BaseModel):
     exercise_angina: int = Field(..., ge=0, le=1) # 0: No, 1: Yes
     oldpeak: float = Field(..., ge=0.0, le=10.0)
     st_slope: int = Field(..., ge=0, le=2)
+
+# Newsletter schema
+class NewsletterSubscribe(BaseModel):
+    email: EmailStr
+
+# Contact form schema
+class ContactForm(BaseModel):
+    name: str = Field(..., min_length=2, max_length=200)
+    email: EmailStr
+    message: str = Field(..., min_length=10, max_length=5000)
+
+# Specialist recommendation request
+class SpecialistRequest(BaseModel):
+    symptoms: str = Field(..., min_length=1, max_length=2000)
+    age: Optional[str] = None
+    gender: Optional[str] = None
+    severity: Optional[str] = "moderate"
+    duration: Optional[str] = None
+    medicalHistory: Optional[str] = None
+
