@@ -267,5 +267,65 @@ class TestMedGenieBackend(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["detail"], "Successfully logged out")
 
+    def test_newsletter_subscribe(self):
+        # First subscription
+        response = self.client.post("/api/newsletter/subscribe", json={"email": "test@newsletter.com"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Successfully subscribed", response.json()["message"])
+
+        # Duplicate subscription
+        response = self.client.post("/api/newsletter/subscribe", json={"email": "test@newsletter.com"})
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("already subscribed", response.json()["detail"])
+
+    def test_contact_form(self):
+        # Valid submission
+        response = self.client.post("/api/contact", json={
+            "name": "John Doe",
+            "email": "john@example.com",
+            "message": "This is a test message that is long enough."
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["success"])
+
+        # Invalid — message too short
+        response = self.client.post("/api/contact", json={
+            "name": "John",
+            "email": "john@example.com",
+            "message": "Hi"
+        })
+        self.assertEqual(response.status_code, 422)  # Pydantic validation error
+
+    def test_specialist_recommendation(self):
+        # Chest pain → cardiologist
+        response = self.client.post("/api/specialist/recommend", json={
+            "symptoms": "I have chest pain and heart palpitations",
+            "age": "45",
+            "gender": "male",
+            "severity": "moderate"
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("recommendations", data)
+        self.assertGreater(len(data["recommendations"]), 0)
+        specialties = [r["specialty"] for r in data["recommendations"]]
+        self.assertIn("Cardiologist", specialties)
+
+        # No symptoms → 422
+        response = self.client.post("/api/specialist/recommend", json={
+            "symptoms": ""
+        })
+        self.assertEqual(response.status_code, 422)
+
+        # Unknown symptoms → fallback to Primary Care
+        response = self.client.post("/api/specialist/recommend", json={
+            "symptoms": "general body pain that is hard to categorize"
+        })
+        self.assertEqual(response.status_code, 200)
+        specialties = [r["specialty"] for r in response.json()["recommendations"]]
+        self.assertIn("Primary Care Physician", specialties)
+
+
 if __name__ == "__main__":
     unittest.main()
+
