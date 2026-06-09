@@ -1,0 +1,301 @@
+from datetime import datetime, timedelta
+import uuid
+import logging
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from sqlalchemy.orm import Session as DBSession
+from sqlalchemy.exc import SQLAlchemyError
+from app.core.database import get_db
+from app.models.db_models import User, Session as UserSession, SecurityEvent
+from app.schemas.pydantic_objs import UserRegister, UserLogin, Token, UserResponse
+from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
+
+# Setup local logger
+logger = logging.getLogger("auth_api")
+logging.basicConfig(level=logging.INFO)
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+def log_security_event(db: DBSession, event_type: str, severity: str, details: str, user_id: int = None, ip: str = None, ua: str = None):
+    """Utility to log security events to the database for audit tracking."""
+    try:
+        event = SecurityEvent(
+            type=event_type,
+            severity=severity,
+            details=details,
+            userId=user_id,
+            ipAddress=ip,
+            userAgent=ua
+        )
+        db.add(event)
+        db.commit()
+    except Exception as e:
+        logger.error(f"Failed to write security event: {e}")
+
+@router.post("/register", response_model=UserResponse)
+async def register(user_in: UserRegister, request: Request, db: DBSession = Depends(get_db)):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "unknown")
+    
+    try:
+        # Check if email already exists
+        user = db.query(User).filter(User.email == user_in.email.lower()).first()
+        if user:
+            log_security_event(db, "registration_failed", "medium", f"Attempted duplicate registration for email: {user_in.email}", ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The user with this email already exists in the system.",
+            )
+        
+        hashed_password = get_password_hash(user_in.password)
+        new_user = User(
+            name=user_in.name,
+            email=user_in.email.lower(),
+            password=hashed_password,
+            confirmpassword=hashed_password,
+            role="user"
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        log_security_event(db, "registration_success", "low", f"New user registered: {new_user.email} (ID: {new_user.id})", user_id=new_user.id, ip=ip, ua=ua)
+        return new_user
+        
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during registration: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database connection error. Please try again later."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during registration: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred during registration."
+        )
+
+@router.post("/login", response_model=Token)
+async def login(
+    user_in: UserLogin, 
+    response: Response, 
+    request: Request,
+    db: DBSession = Depends(get_db)
+):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "unknown")
+    
+    try:
+        user = db.query(User).filter(User.email == user_in.email.lower()).first()
+        if not user or not verify_password(user_in.password, user.password):
+            log_security_event(db, "login_failed", "medium", f"Failed login attempt for email: {user_in.email}", ip=ip, ua=ua)
+            
+            # Increment failed attempts if user exists
+            if user:
+                user.failedLoginAttempts += 1
+                if user.failedLoginAttempts >= 5:
+                    user.lockedUntil = datetime.utcnow() + timedelta(minutes=15)
+                    log_security_event(db, "account_locked", "high", f"Account locked due to consecutive failures: {user.email}", user_id=user.id, ip=ip, ua=ua)
+                db.commit()
+                
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect email or password"
+            )
+        
+        # Check lock status
+        if user.lockedUntil and user.lockedUntil > datetime.utcnow():
+            log_security_event(db, "login_locked_attempt", "high", f"Attempted login on locked account: {user.email}", user_id=user.id, ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Account is temporarily locked. Please try again in 15 minutes."
+            )
+        
+        if not user.isActive:
+            log_security_event(db, "login_inactive_attempt", "medium", f"Attempted login on inactive account: {user.email}", user_id=user.id, ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Your account is deactivated. Please contact support."
+            )
+
+        # Reset failed attempts
+        user.failedLoginAttempts = 0
+        user.lockedUntil = None
+        user.lastLoginAt = datetime.utcnow()
+        
+        # Generate tokens
+        access_token = create_access_token(user.id)
+        refresh_token = create_refresh_token(user.id)
+        expires_at = datetime.utcnow() + timedelta(days=7)
+        
+        # Create persistent session
+        session_id = str(uuid.uuid4())
+        db_session = UserSession(
+            id=session_id,
+            userId=user.id,
+            token=access_token,
+            refreshToken=refresh_token,
+            expiresAt=expires_at,
+            ipAddress=ip,
+            userAgent=ua,
+            isActive=True
+        )
+        db.add(db_session)
+        db.commit()
+
+        # Set httponly cookie for refresh token
+        response.set_cookie(
+            key="refreshToken",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="strict",
+            max_age=60 * 60 * 24 * 30  # 30 Days in seconds
+        )
+
+        log_security_event(db, "login_success", "low", f"Successful login for user: {user.email}", user_id=user.id, ip=ip, ua=ua)
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during login: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database connection error. Please try again."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during login: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred."
+        )
+
+@router.post("/refresh", response_model=Token)
+async def refresh(
+    request: Request,
+    response: Response,
+    db: DBSession = Depends(get_db)
+):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "unknown")
+    
+    try:
+        refresh_token = request.cookies.get("refreshToken")
+        if not refresh_token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                refresh_token = auth_header.split(" ")[1]
+
+        if not refresh_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token missing"
+            )
+
+        payload = decode_token(refresh_token)
+        if not payload or payload.get("type") != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token"
+            )
+
+        try:
+            user_id = int(payload.get("sub"))
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload"
+            )
+        
+        # Find session from DB
+
+        session = db.query(UserSession).filter(
+            UserSession.refreshToken == refresh_token,
+            UserSession.isActive == True,
+            UserSession.expiresAt > datetime.utcnow()
+        ).first()
+        
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session expired or invalid"
+            )
+
+        # Generate new tokens
+        new_access_token = create_access_token(user_id)
+        new_refresh_token = create_refresh_token(user_id)
+
+        # Update session in DB
+        session.token = new_access_token
+        session.refreshToken = new_refresh_token
+        session.lastUsedAt = datetime.utcnow()
+        db.commit()
+
+        # Reset cookie
+        response.set_cookie(
+            key="refreshToken",
+            value=new_refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="strict",
+            max_age=60 * 60 * 24 * 30
+        )
+
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer"
+        }
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during refresh: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Session database lookup failed."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during refresh: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Token refresh operation failed."
+        )
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    db: DBSession = Depends(get_db)
+):
+    try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            access_token = auth_header.split(" ")[1]
+            
+            # Deactivate session in database
+            session = db.query(UserSession).filter(UserSession.token == access_token).first()
+            if session:
+                session.isActive = False
+                db.commit()
+
+        # Clear refresh token cookie
+        response.delete_cookie(key="refreshToken")
+        return {"detail": "Successfully logged out"}
+        
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during logout: {e}")
+        return {"detail": "Logged out locally"}
+    except Exception as e:
+        logger.error(f"Unexpected error during logout: {e}")
+        return {"detail": "Logged out"}
