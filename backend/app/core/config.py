@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # Gemini AI
     GOOGLE_AI_API_KEY: str = ""
 
+    # OGD Hospital API (data.gov.in)
+    API_SETU_KEY: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True

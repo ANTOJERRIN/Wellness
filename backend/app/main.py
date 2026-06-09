@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api import auth, profile, chat, risk
+from app.api import auth, profile, chat, risk, newsletter, contact, specialist, hospitals
 
 # Create tables in SQLite/Postgres on startup
 Base.metadata.create_all(bind=engine)
@@ -46,7 +46,12 @@ app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(profile.router, prefix=settings.API_V1_STR)
 app.include_router(chat.router, prefix=settings.API_V1_STR)
 app.include_router(risk.router, prefix=settings.API_V1_STR)
+app.include_router(newsletter.router, prefix=settings.API_V1_STR)
+app.include_router(contact.router, prefix=settings.API_V1_STR)
+app.include_router(specialist.router, prefix=settings.API_V1_STR)
+app.include_router(hospitals.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
     return {"message": "Welcome to Med Genie Python Backend"}
+
