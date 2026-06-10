@@ -112,21 +112,39 @@ async def predict_heart_risk(
     # If model is loaded, use it
     if model is not None:
         try:
-            input_vector = [[
-                features.age,
-                features.sex,
-                features.chest_pain_type,
-                features.resting_bp,
-                features.cholesterol,
-                features.fasting_blood_sugar,
-                features.resting_ecg,
-                features.max_heart_rate,
-                features.exercise_angina,
-                features.oldpeak,
-                features.st_slope
-            ]]
-            prediction = int(model.predict(input_vector)[0])
-            prob = float(model.predict_proba(input_vector)[0][1])
+            import pandas as pd
+            df = pd.DataFrame([{
+                'age': features.age,
+                'sex': features.sex,
+                'cp': features.chest_pain_type,
+                'trestbps': features.resting_bp,
+                'chol': features.cholesterol,
+                'fbs': features.fasting_blood_sugar,
+                'restecg': features.resting_ecg,
+                'thalach': features.max_heart_rate,
+                'exang': features.exercise_angina,
+                'oldpeak': features.oldpeak,
+                'slope': features.st_slope,
+                'ca': 0.0,
+                'thal': 2.0,
+                'age.1': float(features.age),
+                'gender': float(features.sex),
+                'bmi': 25.0,
+                'daily_steps': 7000.0,
+                'sleep_hours': 7.0,
+                'water_intake_l': 2.0,
+                'calories_consumed': 2000.0,
+                'smoker': 0.0,
+                'alcohol': 0.0,
+                'resting_hr': 70.0,
+                'systolic_bp': float(features.resting_bp),
+                'diastolic_bp': 80.0,
+                'cholesterol': float(features.cholesterol),
+                'family_history': 0.0,
+                'disease_risk': 0.0
+            }])
+            prediction = int(model.predict(df)[0])
+            prob = float(model.predict_proba(df)[0][1])
             return {
                 "risk_predicted": prediction,
                 "risk_probability": round(prob, 2),

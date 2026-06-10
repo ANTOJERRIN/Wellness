@@ -34,7 +34,7 @@ class RiskState {
   }
 }
 
-class RiskNotifier extends AutoDisposeNotifier<RiskState> {
+class RiskNotifier extends Notifier<RiskState> {
   @override
   RiskState build() {
     return RiskState();
@@ -65,4 +65,4 @@ class RiskNotifier extends AutoDisposeNotifier<RiskState> {
 }
 
 final riskProvider =
-    NotifierProvider.autoDispose<RiskNotifier, RiskState>(RiskNotifier.new);
+    NotifierProvider<RiskNotifier, RiskState>(RiskNotifier.new);

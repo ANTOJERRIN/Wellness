@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/risk_api.dart';
-import '../data/models/risk_model.dart';
+import '../data/risk_models.dart';
+import '../state/risk_provider.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_view.dart';
 import '../../../core/widgets/medical_disclaimer_banner.dart';
@@ -30,81 +30,67 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
   double oldpeak = 0.0;
   int slope = 1;
 
-  bool _isLoading = false;
-  double? _resultScore;
-  int? _resultClass;
-  String? _engineUsed;
-
   Future<void> _evaluateRisk() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() {
-      _isLoading = true;
-      _resultScore = null;
-    });
-    try {
-      final riskApi = ref.read(riskApiProvider);
-      final features = RiskFeaturesModel(
-        age: age,
-        sex: sex,
-        chestPainType: cp,
-        restingBp: bp,
-        cholesterol: chol,
-        fastingBloodSugar: fbs,
-        restingEcg: ecg,
-        maxHeartRate: thalach,
-        exerciseAngina: exang,
-        oldpeak: oldpeak,
-        stSlope: slope,
-      );
-      final response = await riskApi.predictHeartRisk(features);
-      setState(() {
-        _resultScore = response.riskProbability * 100;
-        _resultClass = response.riskPredicted;
-        _engineUsed = response.engine;
-      });
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Failed to get prediction. Check your connection."),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
-    }
-    setState(() => _isLoading = false);
+    final features = RiskFeaturesModel(
+      age: age,
+      sex: sex,
+      chestPainType: cp,
+      restingBp: bp,
+      cholesterol: chol,
+      fastingBloodSugar: fbs,
+      restingEcg: ecg,
+      maxHeartRate: thalach,
+      exerciseAngina: exang,
+      oldpeak: oldpeak,
+      stSlope: slope,
+    );
+    await ref.read(riskProvider.notifier).evaluateRisk(features);
   }
 
   @override
   Widget build(BuildContext context) {
+    final riskState = ref.watch(riskProvider);
+
+    ref.listen<RiskState>(riskProvider, (previous, next) {
+      if (next.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    });
+
+    final isLoading = riskState.isLoading;
+    final resultScore = riskState.resultScore;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cardiac Risk Evaluator"),
         actions: [
-          if (_resultScore != null)
+          if (resultScore != null)
             TextButton(
-              onPressed: () => setState(() {
-                _resultScore = null;
-                _resultClass = null;
-              }),
+              onPressed: () => ref.read(riskProvider.notifier).reset(),
               child: const Text("Re-test",
                   style: TextStyle(color: Color(0xFF10B981))),
             ),
         ],
       ),
-      body: _isLoading
+      body: isLoading
           ? const LoadingView(message: "Analyzing cardiac indicators...")
-          : _resultScore != null
-              ? _buildResults()
-              : _buildForm(),
+          : resultScore != null
+              ? _buildResults(riskState)
+              : _buildForm(isLoading),
     );
   }
 
-  Widget _buildResults() {
-    final isHighRisk = _resultClass == 1;
+  Widget _buildResults(RiskState state) {
+    final isHighRisk = state.resultClass == 1;
     final color =
         isHighRisk ? Colors.redAccent : const Color(0xFF10B981);
-    final percentage = _resultScore!.toStringAsFixed(1);
+    final percentage = state.resultScore!.toStringAsFixed(1);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -211,10 +197,10 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
                       height: 1.6,
                       fontSize: 14),
                 ),
-                if (_engineUsed != null) ...[
+                if (state.engineUsed != null) ...[
                   const SizedBox(height: 16),
                   Text(
-                    "Engine: ${_engineUsed!.replaceAll('_', ' ')}",
+                    "Engine: ${state.engineUsed!.replaceAll('_', ' ')}",
                     style: const TextStyle(
                         color: Colors.grey, fontSize: 11),
                   ),
@@ -234,17 +220,14 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
 
           AppButton(
             text: "Run Another Test",
-            onPressed: () => setState(() {
-              _resultScore = null;
-              _resultClass = null;
-            }),
+            onPressed: () => ref.read(riskProvider.notifier).reset(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(bool isLoading) {
     return Form(
       key: _formKey,
       child: ListView(
@@ -308,7 +291,7 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
 
           AppButton(
             text: "Predict Cardiac Risk",
-            isLoading: _isLoading,
+            isLoading: isLoading,
             onPressed: _evaluateRisk,
             backgroundColor: Colors.pinkAccent.shade100,
             textColor: Colors.black,
