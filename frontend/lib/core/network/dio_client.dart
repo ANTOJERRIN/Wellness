@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_token_storage.dart';
 import 'auth_interceptor.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 final dioClientProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
@@ -12,7 +13,12 @@ final dioClientProvider = Provider<Dio>((ref) {
   ));
 
   final tokenStorage = ref.watch(tokenStorageProvider);
-  dio.interceptors.add(AuthInterceptor(tokenStorage));
+  dio.interceptors.add(AuthInterceptor(
+    tokenStorage,
+    onLogout: () {
+      ref.read(authProvider.notifier).logout();
+    },
+  ));
 
   return dio;
 });

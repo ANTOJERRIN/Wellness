@@ -7,6 +7,7 @@ class SecureTokenStorage {
   SecureTokenStorage(this._storage);
 
   static const String _accessTokenKey = 'access_token';
+  static const String _refreshTokenKey = 'refresh_token';
 
   Future<String?> getAccessToken() async {
     return await _storage.read(key: _accessTokenKey);
@@ -18,6 +19,23 @@ class SecureTokenStorage {
 
   Future<void> deleteAccessToken() async {
     await _storage.delete(key: _accessTokenKey);
+  }
+
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshTokenKey);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    await _storage.write(key: _refreshTokenKey, value: token);
+  }
+
+  Future<void> deleteRefreshToken() async {
+    await _storage.delete(key: _refreshTokenKey);
+  }
+
+  Future<void> clearTokens() async {
+    await deleteAccessToken();
+    await deleteRefreshToken();
   }
 }
 

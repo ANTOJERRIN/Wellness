@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../core/network/dio_client.dart';
 import '../../../core/storage/secure_token_storage.dart';
+import '../data/auth_api.dart';
+import '../../profile/data/profile_api.dart';
 
 class AuthState {
   final bool isAuthenticated;
@@ -37,8 +37,9 @@ class AuthState {
 }
 
 class AuthNotifier extends Notifier<AuthState> {
-  Dio get _dio => ref.read(dioProvider);
-  FlutterSecureStorage get _storage => ref.read(secureStorageProvider);
+  SecureTokenStorage get _tokenStorage => ref.read(tokenStorageProvider);
+  AuthApi get _authApi => ref.read(authApiProvider);
+  ProfileApi get _profileApi => ref.read(profileApiProvider);
 
   @override
   AuthState build() {
@@ -48,23 +49,20 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> checkAuthStatus() async {
     try {
-      final token = await _storage.read(key: "access_token");
+      final token = await _tokenStorage.getAccessToken();
       if (token == null) {
         state = AuthState(isAuthenticated: false);
         return;
       }
-      final res = await _dio.get("/user/profile");
-      if (res.statusCode == 200) {
-        state = AuthState(
-          isAuthenticated: true,
-          userName: res.data["name"],
-          userEmail: res.data["email"],
-        );
-      }
+      final profile = await _profileApi.getProfile();
+      state = AuthState(
+        isAuthenticated: true,
+        userName: profile.name,
+        userEmail: profile.email,
+      );
     } catch (e) {
       try {
-        await _storage.delete(key: "access_token");
-        await _storage.delete(key: "refresh_token");
+        await _tokenStorage.clearTokens();
       } catch (_) {}
       state = AuthState(isAuthenticated: false);
     }
@@ -73,49 +71,42 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final res = await _dio.post("/auth/login", data: {
-        "email": email,
-        "password": password,
-      });
-      final accessToken = res.data["access_token"];
-      final refreshToken = res.data["refresh_token"];
+      final tokens = await _authApi.login(email: email, password: password);
+      await _tokenStorage.saveAccessToken(tokens.accessToken);
+      await _tokenStorage.saveRefreshToken(tokens.refreshToken);
 
-      await _storage.write(key: "access_token", value: accessToken);
-      await _storage.write(key: "refresh_token", value: refreshToken);
-
-      final profileRes = await _dio.get("/user/profile");
+      final profile = await _profileApi.getProfile();
       state = AuthState(
         isAuthenticated: true,
-        userName: profileRes.data["name"],
-        userEmail: profileRes.data["email"],
+        userName: profile.name,
+        userEmail: profile.email,
       );
     } on DioException catch (e) {
       final msg = e.response?.data["detail"] ?? "Invalid email or password";
       state = state.copyWith(isLoading: false, errorMessage: msg);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
   Future<void> register(String name, String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      await _dio.post("/auth/register", data: {
-        "name": name,
-        "email": email,
-        "password": password,
-      });
+      await _authApi.register(name: name, email: email, password: password);
       await login(email, password);
     } on DioException catch (e) {
       final msg = e.response?.data["detail"] ?? "Registration failed";
       state = state.copyWith(isLoading: false, errorMessage: msg);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
   Future<void> logout() async {
     try {
-      await _dio.post("/auth/logout");
+      await _authApi.logout();
     } catch (_) {}
-    await _storage.delete(key: "access_token");
-    await _storage.delete(key: "refresh_token");
+    await _tokenStorage.clearTokens();
     state = AuthState(isAuthenticated: false);
   }
 }

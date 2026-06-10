@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_client.dart';
+import '../data/profile_api.dart';
+import '../data/models/profile_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_view.dart';
 import '../../../core/widgets/medical_disclaimer_banner.dart';
@@ -41,13 +42,14 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
   Future<void> _loadProfile() async {
     setState(() => _isLoading = true);
     try {
-      final res = await ref.read(dioProvider).get("/user/profile");
-      final profile = res.data["healthProfile"];
-      _medHistory.text = profile["medicalHistory"] ?? "";
-      _lifestyle.text = profile["lifestyle"] ?? "";
-      _symptoms.text = profile["symptoms"] ?? "";
-      _allergies.text = profile["allergies"] ?? "";
-      _medications.text = profile["medications"] ?? "";
+      final profileApi = ref.read(profileApiProvider);
+      final userProfile = await profileApi.getProfile();
+      final profile = userProfile.healthProfile;
+      _medHistory.text = profile.medicalHistory;
+      _lifestyle.text = profile.lifestyle;
+      _symptoms.text = profile.symptoms;
+      _allergies.text = profile.allergies;
+      _medications.text = profile.medications;
     } catch (_) {}
     setState(() => _isLoading = false);
   }
@@ -55,13 +57,15 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
     try {
-      await ref.read(dioProvider).put("/user/profile", data: {
-        "medicalHistory": _medHistory.text,
-        "lifestyle": _lifestyle.text,
-        "symptoms": _symptoms.text,
-        "allergies": _allergies.text,
-        "medications": _medications.text,
-      });
+      final profileApi = ref.read(profileApiProvider);
+      final updatedProfile = HealthProfileModel(
+        medicalHistory: _medHistory.text,
+        lifestyle: _lifestyle.text,
+        symptoms: _symptoms.text,
+        allergies: _allergies.text,
+        medications: _medications.text,
+      );
+      await profileApi.updateProfile(updatedProfile);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_client.dart';
+import '../data/chat_api.dart';
 
 class ChatMessage {
   final String text;
@@ -17,7 +17,7 @@ class ChatMessage {
 }
 
 class ChatNotifier extends Notifier<List<ChatMessage>> {
-  Dio get _dio => ref.read(dioProvider);
+  ChatApi get _chatApi => ref.read(chatApiProvider);
   String? activeSessionId;
 
   @override
@@ -36,8 +36,8 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
       )
     ];
     try {
-      final res = await _dio.post("/chat/sessions", data: {"title": "New Chat Session"});
-      activeSessionId = res.data["sessionId"];
+      final session = await _chatApi.createSession("New Chat Session");
+      activeSessionId = session.sessionId;
     } catch (_) {}
   }
 
@@ -50,14 +50,33 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
         timestamp: DateTime.now(),
       )
     ];
-    // Start a fresh local view — in a more advanced version, we'd fetch messages
-    state = [
-      ChatMessage(
-        text: "Session resumed. Continue your conversation below.",
-        sender: 'ai',
-        timestamp: DateTime.now(),
-      )
-    ];
+    try {
+      final messages = await _chatApi.getSessionMessages(sessionId);
+      state = messages.map((m) => ChatMessage(
+        text: m.content,
+        sender: m.sender,
+        timestamp: m.timestamp,
+        isFollowUpPrompt: m.isFollowUp,
+      )).toList();
+      
+      if (state.isEmpty) {
+        state = [
+          ChatMessage(
+            text: "Session resumed. Continue your conversation below.",
+            sender: 'ai',
+            timestamp: DateTime.now(),
+          )
+        ];
+      }
+    } catch (_) {
+      state = [
+        ChatMessage(
+          text: "Failed to load session history. Please try again.",
+          sender: 'ai',
+          timestamp: DateTime.now(),
+        )
+      ];
+    }
   }
 
   Future<void> sendMessage(String text) async {
@@ -80,29 +99,23 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
     state = [...state, thinkingMsg];
 
     try {
-      final res = await _dio.post(
-        "/chat/sessions/$activeSessionId/messages",
-        data: {"content": text},
-      );
+      final response = await _chatApi.sendMessage(activeSessionId!, text);
       state = state.where((msg) => msg.text != "Thinking...").toList();
-
-      final answer = res.data["answer"];
-      final followUp = res.data["followUpQuestion"];
 
       state = [
         ...state,
         ChatMessage(
-          text: answer,
+          text: response.answer,
           sender: 'ai',
           timestamp: DateTime.now(),
         )
       ];
 
-      if (followUp != null && followUp.toString().isNotEmpty) {
+      if (response.followUpQuestion.isNotEmpty) {
         state = [
           ...state,
           ChatMessage(
-            text: followUp,
+            text: response.followUpQuestion,
             sender: 'ai',
             timestamp: DateTime.now(),
             isFollowUpPrompt: true,

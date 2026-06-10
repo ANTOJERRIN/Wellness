@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_client.dart';
+import '../data/risk_api.dart';
+import '../data/models/risk_model.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/loading_view.dart';
 import '../../../core/widgets/medical_disclaimer_banner.dart';
@@ -41,23 +42,25 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
       _resultScore = null;
     });
     try {
-      final res = await ref.read(dioProvider).post("/risk/predict", data: {
-        "age": age,
-        "sex": sex,
-        "chest_pain_type": cp,
-        "resting_bp": bp,
-        "cholesterol": chol,
-        "fasting_blood_sugar": fbs,
-        "resting_ecg": ecg,
-        "max_heart_rate": thalach,
-        "exercise_angina": exang,
-        "oldpeak": oldpeak,
-        "st_slope": slope,
-      });
+      final riskApi = ref.read(riskApiProvider);
+      final features = RiskFeaturesModel(
+        age: age,
+        sex: sex,
+        chestPainType: cp,
+        restingBp: bp,
+        cholesterol: chol,
+        fastingBloodSugar: fbs,
+        restingEcg: ecg,
+        maxHeartRate: thalach,
+        exerciseAngina: exang,
+        oldpeak: oldpeak,
+        stSlope: slope,
+      );
+      final response = await riskApi.predictHeartRisk(features);
       setState(() {
-        _resultScore = (res.data["risk_probability"] as num).toDouble() * 100;
-        _resultClass = res.data["risk_predicted"];
-        _engineUsed = res.data["engine"];
+        _resultScore = response.riskProbability * 100;
+        _resultClass = response.riskPredicted;
+        _engineUsed = response.engine;
       });
     } catch (_) {
       if (mounted) {
