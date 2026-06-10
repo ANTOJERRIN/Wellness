@@ -7,7 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 import google.generativeai as genai
 from app.core.database import get_db
 from app.models.db_models import User, ChatSession, ChatMessage, HealthProfile
-from app.schemas.pydantic_objs import ChatMessageCreate, ChatSessionCreate
+from app.schemas.pydantic_objs import ChatMessageCreate, ChatSessionCreate, ChatMessageResponse
+from typing import List
 from app.api.deps import get_current_user
 from app.core.config import settings
 
@@ -243,4 +244,68 @@ async def send_chat_message(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to query Gemini AI or save response: {str(e)}"
         )
+
+
+@router.get("/sessions/{session_id}/messages", response_model=List[ChatMessageResponse])
+async def get_chat_messages(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    try:
+        chat_session = db.query(ChatSession).filter(
+            ChatSession.sessionId == session_id,
+            ChatSession.userId == current_user.id
+        ).first()
+        
+        if not chat_session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chat session not found"
+            )
+            
+        messages = db.query(ChatMessage).filter(
+            ChatMessage.sessionId == chat_session.id
+        ).order_by(ChatMessage.timestamp.asc()).all()
+        
+        return messages
+    except SQLAlchemyError as e:
+        logger.error(f"Database error fetching messages for session {session_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve messages from database."
+        )
+
+
+@router.delete("/sessions/{session_id}")
+async def delete_chat_session(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    try:
+        chat_session = db.query(ChatSession).filter(
+            ChatSession.sessionId == session_id,
+            ChatSession.userId == current_user.id
+        ).first()
+        
+        if not chat_session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chat session not found"
+            )
+            
+        chat_session.isActive = False
+        chat_session.updatedAt = datetime.utcnow()
+        db.commit()
+        
+        return {"success": True, "message": "Session deleted successfully"}
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error deleting session {session_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete chat session from database."
+        )
+
 

@@ -20,6 +20,8 @@ class User(Base):
     lockedUntil = Column(DateTime, nullable=True)
     lastPasswordChange = Column(DateTime, default=datetime.utcnow)
     passwordVersion = Column(Integer, default=1)
+    resetToken = Column(String(255), nullable=True)
+    resetTokenExpiry = Column(DateTime, nullable=True)
 
     # Relationships
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")

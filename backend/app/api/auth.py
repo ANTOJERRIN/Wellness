@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 import uuid
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, Query
 from sqlalchemy.orm import Session as DBSession
 from sqlalchemy.exc import SQLAlchemyError
 from app.core.database import get_db
 from app.models.db_models import User, Session as UserSession, SecurityEvent
-from app.schemas.pydantic_objs import UserRegister, UserLogin, Token, UserResponse
+from app.schemas.pydantic_objs import UserRegister, UserLogin, Token, UserResponse, ForgotPasswordRequest, ResetPasswordRequest
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
 
 # Setup local logger
@@ -299,3 +299,147 @@ async def logout(
     except Exception as e:
         logger.error(f"Unexpected error during logout: {e}")
         return {"detail": "Logged out"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    request: Request,
+    db: DBSession = Depends(get_db)
+):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "unknown")
+    email = body.email.lower().strip()
+    
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            log_security_event(db, "forgot_password_failed", "low", f"Forgot password requested for non-existent email: {email}", ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No user found with this email"
+            )
+        
+        import secrets
+        token = secrets.token_hex(32)
+        expiry = datetime.utcnow() + timedelta(hours=1)
+        
+        user.resetToken = token
+        user.resetTokenExpiry = expiry
+        db.commit()
+        
+        reset_link = f"http://localhost:9005/api/auth/reset-password?token={token}&email={email}"
+        logger.info(f"[SIMULATED EMAIL] Password reset requested for {email}. Reset Link: {reset_link}")
+        
+        log_security_event(db, "password_reset_requested", "low", f"Password reset link generated for user: {user.email}", user_id=user.id, ip=ip, ua=ua)
+        
+        return {
+            "success": True,
+            "message": "Password reset link sent to your email"
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during forgot-password request: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error. Please try again."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during forgot-password request: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred."
+        )
+
+
+@router.post("/reset-password")
+async def reset_password(
+    body: ResetPasswordRequest,
+    request: Request,
+    db: DBSession = Depends(get_db)
+):
+    ip = request.client.host if request.client else "unknown"
+    ua = request.headers.get("user-agent", "unknown")
+    email = body.email.lower().strip()
+    
+    if body.newPassword != body.confirmPassword:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwords do not match."
+        )
+        
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        if not user or user.resetToken != body.token:
+            log_security_event(db, "password_reset_failed", "medium", f"Invalid reset token or email for: {email}", ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token or email"
+            )
+            
+        if not user.resetTokenExpiry or user.resetTokenExpiry < datetime.utcnow():
+            log_security_event(db, "password_reset_failed", "medium", f"Expired reset token for: {email}", user_id=user.id, ip=ip, ua=ua)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Reset token expired"
+            )
+            
+        hashed_password = get_password_hash(body.newPassword)
+        user.password = hashed_password
+        user.confirmpassword = hashed_password
+        user.resetToken = None
+        user.resetTokenExpiry = None
+        user.lastPasswordChange = datetime.utcnow()
+        user.passwordVersion += 1
+        
+        db.commit()
+        
+        log_security_event(db, "password_reset_success", "medium", f"Password reset successfully for user: {user.email}", user_id=user.id, ip=ip, ua=ua)
+        
+        return {"success": True, "message": "Password updated successfully"}
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during reset-password: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error. Please try again."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during reset-password: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred."
+        )
+
+
+@router.get("/check-email")
+async def check_email_get(
+    email: str = Query(..., description="Email to check availability"),
+    db: DBSession = Depends(get_db)
+):
+    email_clean = email.lower().strip()
+    user = db.query(User).filter(User.email == email_clean).first()
+    return {
+        "success": True,
+        "exists": user is not None,
+        "message": "Email is already registered" if user else "Email is available"
+    }
+
+
+@router.post("/check-email")
+async def check_email_post(
+    body: ForgotPasswordRequest,
+    db: DBSession = Depends(get_db)
+):
+    email_clean = body.email.lower().strip()
+    user = db.query(User).filter(User.email == email_clean).first()
+    return {
+        "success": True,
+        "exists": user is not None,
+        "message": "Email is already registered" if user else "Email is available"
+    }
+

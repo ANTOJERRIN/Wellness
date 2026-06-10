@@ -325,7 +325,134 @@ class TestWellnessBackend(unittest.TestCase):
         specialties = [r["specialty"] for r in response.json()["recommendations"]]
         self.assertIn("Primary Care Physician", specialties)
 
+    def test_check_email_endpoints(self):
+        # Setup user
+        hashed = get_password_hash("password123")
+        user = User(name="Test Check", email="check@example.com", password=hashed, confirmpassword=hashed)
+        self.db.add(user)
+        self.db.commit()
+
+        # Test GET check-email exists
+        response = self.client.get("/api/auth/check-email?email=check@example.com")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["exists"])
+
+        # Test GET check-email does not exist
+        response = self.client.get("/api/auth/check-email?email=notexists@example.com")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["exists"])
+
+        # Test POST check-email exists
+        response = self.client.post("/api/auth/check-email", json={"email": "check@example.com"})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["exists"])
+
+    def test_forgot_and_reset_password_flow(self):
+        # Setup user
+        hashed = get_password_hash("password123")
+        user = User(name="Reset User", email="reset@example.com", password=hashed, confirmpassword=hashed)
+        self.db.add(user)
+        self.db.commit()
+
+        # Test forgot password (valid email)
+        response = self.client.post("/api/auth/forgot-password", json={"email": "reset@example.com"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Password reset link sent", response.json()["message"])
+
+        # Retrieve user reset token from DB
+        updated_user = self.db.query(User).filter(User.email == "reset@example.com").first()
+        self.assertIsNotNone(updated_user.resetToken)
+        self.assertIsNotNone(updated_user.resetTokenExpiry)
+        token = updated_user.resetToken
+
+        # Test reset password (mismatch new/confirm passwords)
+        reset_payload_mismatch = {
+            "token": token,
+            "email": "reset@example.com",
+            "newPassword": "newpassword123",
+            "confirmPassword": "mismatchpassword"
+        }
+        response = self.client.post("/api/auth/reset-password", json=reset_payload_mismatch)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("match", response.json()["detail"])
+
+        # Test reset password (success)
+        reset_payload_success = {
+            "token": token,
+            "email": "reset@example.com",
+            "newPassword": "newpassword123",
+            "confirmPassword": "newpassword123"
+        }
+        response = self.client.post("/api/auth/reset-password", json=reset_payload_success)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("success", response.json()["message"])
+
+        # Verify password is updated & login with new password works
+        login_payload = {
+            "email": "reset@example.com",
+            "password": "newpassword123"
+        }
+        response = self.client.post("/api/auth/login", json=login_payload)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access_token", response.json())
+
+    def test_chat_session_messages_and_deletion(self):
+        # Setup user and auth
+        hashed = get_password_hash("password123")
+        user = User(name="Chat User", email="chat_user@example.com", password=hashed, confirmpassword=hashed)
+        self.db.add(user)
+        self.db.commit()
+
+        login_response = self.client.post("/api/auth/login", json={"email": "chat_user@example.com", "password": "password123"})
+        token = login_response.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # Create session
+        sess_response = self.client.post("/api/chat/sessions", json={"title": "Session to be deleted"}, headers=headers)
+        session_id = sess_response.json()["sessionId"]
+
+        # Insert a mock message directly in DB for this session
+        chat_sess = self.db.query(ChatSession).filter(ChatSession.sessionId == session_id).first()
+        msg = ChatMessage(sessionId=chat_sess.id, content="Hello World", sender="user")
+        self.db.add(msg)
+        self.db.commit()
+
+        # Test GET /api/chat/sessions/{session_id}/messages
+        response = self.client.get(f"/api/chat/sessions/{session_id}/messages", headers=headers)
+        self.assertEqual(response.status_code, 200)
+        messages = response.json()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0]["content"], "Hello World")
+
+        # Test DELETE /api/chat/sessions/{session_id}
+        response = self.client.delete(f"/api/chat/sessions/{session_id}", headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["success"])
+
+        # Verify session is no longer in listed active sessions
+        list_response = self.client.get("/api/chat/sessions", headers=headers)
+        self.assertEqual(len(list_response.json()), 0)
+
+    def test_aligned_hospitals_and_specialists_endpoints(self):
+        # Test new aligned hospital path
+        response = self.client.get("/api/nearby-hospitals?state=Karnataka")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("hospitals", response.json())
+        self.assertGreater(len(response.json()["hospitals"]), 0)
+
+        # Test new aligned specialist path
+        response = self.client.post("/api/specialist-recommendation", json={
+            "symptoms": "chest pain",
+            "age": "50",
+            "gender": "male"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("recommendations", response.json())
+        specialties = [r["specialty"] for r in response.json()["recommendations"]]
+        self.assertIn("Cardiologist", specialties)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

@@ -109,3 +109,15 @@ class SpecialistRequest(BaseModel):
     duration: Optional[str] = None
     medicalHistory: Optional[str] = None
 
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    email: EmailStr
+    newPassword: str = Field(..., min_length=8)
+    confirmPassword: str = Field(..., min_length=8)
+
+

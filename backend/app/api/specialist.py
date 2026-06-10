@@ -4,7 +4,7 @@ from app.schemas.pydantic_objs import SpecialistRequest
 
 logger = logging.getLogger("specialist_api")
 
-router = APIRouter(prefix="/specialist", tags=["specialist"])
+router = APIRouter(tags=["specialist"])
 
 DISCLAIMERS = [
     "These recommendations are for informational purposes only and should not replace professional medical advice.",
@@ -146,7 +146,8 @@ def get_mock_recommendations(
     return recommendations
 
 
-@router.post("/recommend")
+@router.post("/specialist/recommend")
+@router.post("/specialist-recommendation")
 async def recommend_specialist(body: SpecialistRequest):
     """Return specialist recommendations based on symptoms and patient details."""
     if not body.symptoms.strip():

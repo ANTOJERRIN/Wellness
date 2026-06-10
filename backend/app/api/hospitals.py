@@ -5,7 +5,7 @@ from app.core.config import settings
 
 logger = logging.getLogger("hospitals_api")
 
-router = APIRouter(prefix="/hospitals", tags=["hospitals"])
+router = APIRouter(tags=["hospitals"])
 
 # Fallback mock data when API key is not configured
 MOCK_HOSPITALS = {
@@ -72,7 +72,8 @@ MOCK_HOSPITALS = {
 }
 
 
-@router.get("/nearby")
+@router.get("/hospitals/nearby")
+@router.get("/nearby-hospitals")
 async def get_nearby_hospitals(
     state: str = Query(..., description="State name to search hospitals in")
 ):
