@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/dio_client.dart';
-import 'models/risk_model.dart';
+import 'risk_models.dart';
 
 class RiskApi {
   final Dio _dio;
