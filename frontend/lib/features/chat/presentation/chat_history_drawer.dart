@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_client.dart';
 import '../providers/chat_provider.dart';
+import '../data/chat_api.dart';
+import '../data/models/chat_model.dart';
 
 class ChatHistoryDrawer extends ConsumerStatefulWidget {
   const ChatHistoryDrawer({super.key});
@@ -11,7 +12,7 @@ class ChatHistoryDrawer extends ConsumerStatefulWidget {
 }
 
 class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
-  List<Map<String, dynamic>> _sessions = [];
+  List<ChatSessionModel> _sessions = [];
   bool _isLoading = true;
 
   @override
@@ -23,13 +24,12 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
   Future<void> _loadSessions() async {
     setState(() => _isLoading = true);
     try {
-      final res = await ref.read(dioProvider).get("/chat/sessions");
-      if (res.statusCode == 200) {
-        setState(() {
-          _sessions = List<Map<String, dynamic>>.from(res.data);
-          _isLoading = false;
-        });
-      }
+      final chatApi = ref.read(chatApiProvider);
+      final sessions = await chatApi.listSessions();
+      setState(() {
+        _sessions = sessions;
+        _isLoading = false;
+      });
     } catch (_) {
       setState(() => _isLoading = false);
     }
@@ -132,9 +132,8 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                           itemCount: _sessions.length,
                           itemBuilder: (context, index) {
                             final session = _sessions[index];
-                            final title = session["title"] ??
-                                "Chat Session ${index + 1}";
-                            final createdAt = session["createdAt"] ?? "";
+                            final title = session.title;
+                            final createdAt = session.createdAt;
 
                             return ListTile(
                               contentPadding: const EdgeInsets.symmetric(
@@ -165,7 +164,7 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               onTap: () {
-                                final sessionId = session["sessionId"] ?? "";
+                                final sessionId = session.sessionId;
                                 if (sessionId.isNotEmpty) {
                                   ref
                                       .read(chatProvider.notifier)
@@ -183,18 +182,18 @@ class _ChatHistoryDrawerState extends ConsumerState<ChatHistoryDrawer> {
     );
   }
 
-  String _formatDate(String isoDate) {
+  String _formatDate(DateTime dt) {
     try {
-      final dt = DateTime.parse(isoDate).toLocal();
+      final localDt = dt.toLocal();
       final now = DateTime.now();
-      if (dt.day == now.day &&
-          dt.month == now.month &&
-          dt.year == now.year) {
-        return "Today at ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+      if (localDt.day == now.day &&
+          localDt.month == now.month &&
+          localDt.year == now.year) {
+        return "Today at ${localDt.hour.toString().padLeft(2, '0')}:${localDt.minute.toString().padLeft(2, '0')}";
       }
-      return "${dt.day}/${dt.month}/${dt.year}";
+      return "${localDt.day}/${localDt.month}/${localDt.year}";
     } catch (_) {
-      return isoDate;
+      return dt.toString();
     }
   }
 }
