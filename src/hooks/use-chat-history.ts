@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ChatMessage } from '@/lib/types';
 
 // Storage key for localStorage
-const STORAGE_KEY = 'med-genie-chat-history';
+const STORAGE_KEY = 'wellness-chat-history';
 
 // Maximum number of sessions to store
 const MAX_SESSIONS = 50;
@@ -65,7 +65,7 @@ export function useChatHistory() {
     
     // Create preview from initial message if available
     const preview = initialMessage 
-      ? `${initialMessage.sender === 'user' ? 'You: ' : 'Med Genie: '}${initialMessage.text.substring(0, 40)}${initialMessage.text.length > 40 ? '...' : ''}` 
+      ? `${initialMessage.sender === 'user' ? 'You: ' : 'Wellness: '}${initialMessage.text.substring(0, 40)}${initialMessage.text.length > 40 ? '...' : ''}` 
       : 'New conversation';
     
     const newSession: ChatSession = {
@@ -117,7 +117,7 @@ export function useChatHistory() {
         const updatedMessages = [...session.messages, message];
         
         // Create a preview from the message
-        const preview = `${message.sender === 'user' ? 'You: ' : 'Med Genie: '}${message.text.substring(0, 40)}${message.text.length > 40 ? '...' : ''}`;
+        const preview = `${message.sender === 'user' ? 'You: ' : 'Wellness: '}${message.text.substring(0, 40)}${message.text.length > 40 ? '...' : ''}`;
         
         // Update the session name if it's still the default and this is a user message
         let name = session.name;
@@ -164,7 +164,7 @@ export function useChatHistory() {
           // Generate a preview from the last message
           const lastMessage = messages[messages.length - 1];
           const preview = lastMessage ? 
-            `${lastMessage.sender === 'user' ? 'You: ' : 'Med Genie: '}${lastMessage.text.substring(0, 40)}${lastMessage.text.length > 40 ? '...' : ''}` : 
+            `${lastMessage.sender === 'user' ? 'You: ' : 'Wellness: '}${lastMessage.text.substring(0, 40)}${lastMessage.text.length > 40 ? '...' : ''}` : 
             'Empty conversation';
           
           console.log(`Updating session ${sessionId} with ${messages.length} messages`);

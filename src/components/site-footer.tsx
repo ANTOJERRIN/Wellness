@@ -15,7 +15,7 @@ export function SiteFooter() {
             </h3>
             <p className="text-muted-foreground max-w-md">
               Subscribe to our newsletter for the latest health tips, AI advancements, 
-              and Med Genie updates.
+              and Wellness updates.
             </p>
           </div>
           <NewsletterSubscribe />
@@ -24,7 +24,7 @@ export function SiteFooter() {
         {/* Main Footer Content */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="font-bold text-primary dark:text-white">Med Genie</span>
+            <span className="font-bold text-primary dark:text-white">Wellness</span>
             <span>© {new Date().getFullYear()}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -50,7 +50,7 @@ export function SiteFooter() {
               Terms of Use
             </Link>
             <Link
-              href="https://github.com/aayushraj1010/med-genie"
+              href="https://github.com/aayushraj1010/wellness"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline hover:text-primary transition-colors flex items-center gap-1"

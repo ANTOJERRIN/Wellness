@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Lottie from "lottie-react";
 import ecgAnimation from "@/assets/animations/ECG.json";
 
-export default function MedGenieLoginForm() {
+export default function WellnessLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +67,7 @@ export default function MedGenieLoginForm() {
         </div>
 
         <h2 className="text-3xl font-bold text-center mb-2 text-white">
-          MedGenie Login
+          Wellness Login
         </h2>
         <p className="text-white/70 text-center mb-8 text-sm">
           Sign in to access your AI-powered health assistant

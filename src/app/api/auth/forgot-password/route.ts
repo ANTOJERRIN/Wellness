@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       <p>If you did not request this, please ignore this email.</p>
     `;
 
-    await sendEmail({ to: email, subject: "MedGenie Password Reset", html });
+    await sendEmail({ to: email, subject: "Wellness Password Reset", html });
 
     return NextResponse.json({
       message: "Password reset link sent to your email",

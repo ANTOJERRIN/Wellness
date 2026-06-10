@@ -1,7 +1,7 @@
 # JWT Security Implementation Guide
 
 ## Overview
-This document outlines the comprehensive JWT security improvements implemented to address critical security vulnerabilities in the Med-Genie application.
+This document outlines the comprehensive JWT security improvements implemented to address critical security vulnerabilities in the Wellness application.
 
 ## 🚨 Security Issues Addressed
 

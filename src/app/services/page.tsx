@@ -283,7 +283,7 @@ export default function ServicesPage() {
                             Start Your Health Journey Today
                         </h2>
                         <p className="text-xl md:text-2xl text-primary-foreground/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-                            Join thousands who trust Med Genie for intelligent healthcare assistance. 
+                            Join thousands who trust Wellness for intelligent healthcare assistance. 
                             Experience the future of personalized health support.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-6">

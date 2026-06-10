@@ -76,7 +76,7 @@ export default function ContactSection() {
       }
 
       // Final fallback: open mailto
-      const mailto = `mailto:info@medgenie.ai?subject=${encodeURIComponent("Contact from " + name)}&body=${encodeURIComponent(message + '\n\n' + email)}`;
+      const mailto = `mailto:info@wellness.ai?subject=${encodeURIComponent("Contact from " + name)}&body=${encodeURIComponent(message + '\n\n' + email)}`;
       window.location.href = mailto;
       setStatus({ type: "success", msg: "Opened mail client as fallback." });
     } catch (err) {

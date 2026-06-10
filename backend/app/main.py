@@ -53,5 +53,5 @@ app.include_router(hospitals.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to Med Genie Python Backend"}
+    return {"message": "Welcome to Wellness Python Backend"}
 

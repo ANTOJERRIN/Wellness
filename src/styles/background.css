@@ -1,14 +1,14 @@
-/* Modern Background Styles for Med Genie */
+/* Modern Background Styles for Wellness */
 
 /* Light mode background */
-.bg-med-genie-light {
+.bg-wellness-light {
   background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 50%, #e8f5e9 100%);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
   position: relative;
 }
 
-.bg-med-genie-light::before {
+.bg-wellness-light::before {
   content: "";
   position: absolute;
   top: 0;
@@ -22,7 +22,7 @@
 }
 
 /* Dark mode background */
-.bg-med-genie-dark {
+.bg-wellness-dark {
   background: linear-gradient(135deg, #0a1929 0%, #102a43 30%, #1a365d 70%, #0f2942 100%);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
@@ -35,7 +35,7 @@
     radial-gradient(circle at 50% 50%, rgba(0, 102, 204, 0.08) 0%, transparent 50%);
 }
 
-.bg-med-genie-dark::before {
+.bg-wellness-dark::before {
   content: "";
   position: absolute;
   top: 0;

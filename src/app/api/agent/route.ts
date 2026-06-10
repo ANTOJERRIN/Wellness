@@ -3,7 +3,7 @@ import { getAgentExecutor } from "@/ai/agent";  // ← Uses the fixed async gett
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, sessionId = "medgenie-2025" } = await req.json();
+    const { message, sessionId = "wellness-2025" } = await req.json();
     const agentExecutor = await getAgentExecutor();  // ← Await the fixed executor
 
     const config = { configurable: { thread_id: sessionId } };

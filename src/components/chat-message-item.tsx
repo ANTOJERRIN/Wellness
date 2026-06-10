@@ -30,7 +30,7 @@ export function ChatMessageItem({ message, onFeedback }: ChatMessageItemProps) {
         isUser ? "justify-end" : "justify-start"
       )}
       role="article"
-      aria-label={`${isUser ? "Your message" : "Med Genie response"}: ${message.text.substring(
+      aria-label={`${isUser ? "Your message" : "Wellness response"}: ${message.text.substring(
         0,
         50
       )}${message.text.length > 50 ? "..." : ""}`}
@@ -38,7 +38,7 @@ export function ChatMessageItem({ message, onFeedback }: ChatMessageItemProps) {
       {/* Bot Avatar */}
       {!isUser && (
         <Avatar className="h-10 w-10 self-start ring-2 ring-primary ring-offset-2 ring-offset-background">
-          <AvatarImage src="/images/robot-doctor.svg" alt="Med Genie" />
+          <AvatarImage src="/images/robot-doctor.svg" alt="Wellness" />
           <AvatarFallback className="bg-primary text-primary-foreground">
             <Icon className="h-6 w-6" />
           </AvatarFallback>
@@ -54,20 +54,20 @@ export function ChatMessageItem({ message, onFeedback }: ChatMessageItemProps) {
             : "bg-card text-card-foreground rounded-bl-none"
         )}
         role="region"
-        aria-label={isUser ? "Your message" : "Med Genie response"}
+        aria-label={isUser ? "Your message" : "Wellness response"}
       >
         <CardContent className="p-3">
           {message.isLoading ? (
             <div
               className="flex items-center space-x-2"
               role="status"
-              aria-label="Med Genie is thinking"
+              aria-label="Wellness is thinking"
             >
               <div className="w-2 h-2 bg-current rounded-full animate-pulse delay-75"></div>
               <div className="w-2 h-2 bg-current rounded-full animate-pulse delay-150"></div>
               <div className="w-2 h-2 bg-current rounded-full animate-pulse delay-300"></div>
               <span className="sr-only">
-                Med Genie is processing your question
+                Wellness is processing your question
               </span>
             </div>
           ) : (

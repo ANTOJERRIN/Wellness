@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_provider.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/loading_view.dart';
+import '../../../core/widgets/medical_disclaimer_banner.dart';
+import '../../../core/constants/app_text.dart';
 
 class HeartRiskScreen extends ConsumerStatefulWidget {
   const HeartRiskScreen({super.key});
@@ -86,17 +90,7 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: Color(0xFF10B981)),
-                  SizedBox(height: 20),
-                  Text("Analyzing cardiac indicators...",
-                      style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            )
+          ? const LoadingView(message: "Analyzing cardiac indicators...")
           : _resultScore != null
               ? _buildResults()
               : _buildForm(),
@@ -228,33 +222,19 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
           const SizedBox(height: 16),
 
           // Disclaimer
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-            ),
-            child: const Text(
-              "⚠️ This prediction is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.",
-              style: TextStyle(
-                  color: Colors.orange, fontSize: 12, height: 1.5),
-            ),
+          MedicalDisclaimerBanner(
+            message: AppText.fallbackDisclaimer,
+            color: Colors.orange,
+            icon: Icons.warning_amber_rounded,
           ),
           const SizedBox(height: 24),
 
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: () => setState(() {
-                _resultScore = null;
-                _resultClass = null;
-              }),
-              icon: const Icon(Icons.refresh),
-              label: const Text("Run Another Test",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
+          AppButton(
+            text: "Run Another Test",
+            onPressed: () => setState(() {
+              _resultScore = null;
+              _resultClass = null;
+            }),
           ),
         ],
       ),
@@ -267,27 +247,10 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.pinkAccent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: Colors.pinkAccent.withValues(alpha: 0.3)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.favorite, color: Colors.pinkAccent, size: 20),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    "Input your clinical indicators to run an ML-powered cardiac risk assessment.",
-                    style: TextStyle(
-                        color: Colors.white70, fontSize: 13, height: 1.4),
-                  ),
-                ),
-              ],
-            ),
+          MedicalDisclaimerBanner(
+            message: "Input your clinical indicators to run an ML-powered cardiac risk assessment.",
+            color: Colors.pinkAccent,
+            icon: Icons.favorite,
           ),
           const SizedBox(height: 24),
 
@@ -340,18 +303,12 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
           ),
           const SizedBox(height: 36),
 
-          SizedBox(
-            height: 52,
-            child: ElevatedButton.icon(
-              onPressed: _evaluateRisk,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pinkAccent.shade100,
-                foregroundColor: Colors.black,
-              ),
-              icon: const Icon(Icons.favorite_border),
-              label: const Text("Predict Cardiac Risk",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
+          AppButton(
+            text: "Predict Cardiac Risk",
+            isLoading: _isLoading,
+            onPressed: _evaluateRisk,
+            backgroundColor: Colors.pinkAccent.shade100,
+            textColor: Colors.black,
           ),
           const SizedBox(height: 24),
         ],

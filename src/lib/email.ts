@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   try {
     await transporter.sendMail({
-      from: `"MedGenie Support" <${process.env.SMTP_USER}>`,
+      from: `"Wellness Support" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function Hero() {
-  const brandColor = "rgb(63, 181, 244)"; // Updated MedGenie brand color
+  const brandColor = "rgb(63, 181, 244)"; // Updated Wellness brand color
 
   const [visible, setVisible] = useState(false);
 
@@ -26,14 +26,14 @@ export default function Hero() {
         >
           Your AI-powered Health Companion
           <br />
-          <span style={{ color: brandColor }}>MedGenie</span> – Care at Your Fingertips
+          <span style={{ color: brandColor }}>Wellness</span> – Care at Your Fingertips
         </h1>
 
         <p data-aos="fade-up"
           className="text-[#939393] text-[20px] font-normal leading-[150%]
           max-[768px]:text-[16px] max-[768px]:leading-[140%]"
         >
-          MedGenie is your smart AI health assistant — get instant answers to basic
+          Wellness is your smart AI health assistant — get instant answers to basic
           medical questions, emergency guidance, and symptom-based suggestions.
           Privacy-first, accessible anywhere, anytime.
         </p>
@@ -49,7 +49,7 @@ export default function Hero() {
             max-[768px]:w-auto max-[768px]:h-auto min-w-[200px] whitespace-nowrap
             hover:scale-105 active:scale-95 transition-transform"
         >
-          Try MedGenie
+          Try Wellness
         </a>
       </div>
 

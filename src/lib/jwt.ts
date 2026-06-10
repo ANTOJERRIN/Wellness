@@ -45,8 +45,8 @@ export const signAccessToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): strin
   return jwt.sign(payload, getJWTSecret(), {
     expiresIn: JWT_EXPIRES_IN,
     algorithm: 'HS256',
-    issuer: 'med-genie',
-    audience: 'med-genie-users',
+    issuer: 'wellness',
+    audience: 'wellness-users',
   });
 };
 
@@ -54,8 +54,8 @@ export const signRefreshToken = (payload: Omit<RefreshTokenPayload, 'iat' | 'exp
   return jwt.sign(payload, getJWTSecret(), {
     expiresIn: REFRESH_TOKEN_EXPIRES_IN,
     algorithm: 'HS256',
-    issuer: 'med-genie',
-    audience: 'med-genie-refresh',
+    issuer: 'wellness',
+    audience: 'wellness-refresh',
   });
 };
 
@@ -85,8 +85,8 @@ export const verifyToken = (token: string): JWTPayload | null => {
   try {
     const decoded = jwt.verify(token, getJWTSecret(), {
       algorithms: ['HS256'],
-      issuer: 'med-genie',
-      audience: 'med-genie-users',
+      issuer: 'wellness',
+      audience: 'wellness-users',
     }) as JWTPayload;
 
     // Check if token is blacklisted
@@ -104,8 +104,8 @@ export const verifyRefreshToken = (token: string): RefreshTokenPayload | null =>
   try {
     const decoded = jwt.verify(token, getJWTSecret(), {
       algorithms: ['HS256'],
-      issuer: 'med-genie',
-      audience: 'med-genie-refresh',
+      issuer: 'wellness',
+      audience: 'wellness-refresh',
     }) as RefreshTokenPayload;
 
     // Check if refresh token is blacklisted

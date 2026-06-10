@@ -1,7 +1,7 @@
-# Security Configuration for MedGenie
+# Security Configuration for Wellness
 
 ## Overview
-This document outlines the security measures implemented in the MedGenie application to protect against common vulnerabilities and ensure user data safety.
+This document outlines the security measures implemented in the Wellness application to protect against common vulnerabilities and ensure user data safety.
 
 ## 🔐 Authentication Security
 

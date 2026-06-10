@@ -1,4 +1,4 @@
-# 🩺 MED GENIE
+# 🩺 Wellness
 ### Your Intelligent AI Health Assistant with Secure Authentication
 
 ---
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 Create `backend/.env`:
 ```env
 JWT_SECRET=your-super-secret-jwt-key-min-32-chars
-DATABASE_URL=sqlite:///./medgenie.db
+DATABASE_URL=sqlite:///./wellness.db
 GOOGLE_AI_API_KEY=your_gemini_api_key_here
 API_SETU_KEY=                   # Optional: OGD hospital API key from data.gov.in
 ```
@@ -117,7 +117,7 @@ frontend/lib/
 
 > **🔐 Now featuring secure user authentication, personalized health profiles, and protected health data!**
 
-Med Genie is an intelligent AI-powered health assistant that provides instant, accurate health information and guidance. With our new authentication system, users can securely access personalized health advice, maintain their health history, and enjoy a protected experience.
+Wellness is an intelligent AI-powered health assistant that provides instant, accurate health information and guidance. With our new authentication system, users can securely access personalized health advice, maintain their health history, and enjoy a protected experience.
 
 </div>
 
@@ -162,8 +162,8 @@ Med Genie is an intelligent AI-powered health assistant that provides instant, a
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/ashutosh-engineer/med-genie.git
-   cd med-genie
+   git clone https://github.com/ashutosh-engineer/wellness.git
+   cd wellness
    ```
 
 2. **Install dependencies:**
@@ -245,7 +245,7 @@ GOOGLE_API_KEY=your_google_ai_api_key_here
 ### 📁 **Project Structure**
 
 ```
-med-genie/
+wellness/
 ├── 📁 src/
 │   ├── 📁 ai/                    # AI integration & flows
 │   │   ├── genkit.ts            # Genkit AI setup
@@ -366,7 +366,7 @@ npx prisma generate        # Regenerate client
 
 ## 🔐 Authentication System
 
-Med Genie features a comprehensive authentication system built with modern security practices:
+Wellness features a comprehensive authentication system built with modern security practices:
 
 ### ✅ **Implemented Features**
 - **JWT Authentication** with secure token management
@@ -395,8 +395,8 @@ We welcome contributions from developers, healthcare professionals, and anyone p
 
 ### 🌟 **Ways to Contribute**
 
-- 🐛 **Bug Reports**: Found an issue? [Report it here](https://github.com/ashutosh-engineer/med-genie/issues)
-- 💡 **Feature Requests**: Have an idea? [Share it with us](https://github.com/ashutosh-engineer/med-genie/issues)
+- 🐛 **Bug Reports**: Found an issue? [Report it here](https://github.com/ashutosh-engineer/wellness/issues)
+- 💡 **Feature Requests**: Have an idea? [Share it with us](https://github.com/ashutosh-engineer/wellness/issues)
 - 🛠️ **Code Contributions**: Check our [Contributing Guide](./Contributing.md)
 - 📖 **Documentation**: Help improve our docs and guides
 - 🎨 **Design**: UI/UX improvements and accessibility enhancements
@@ -424,7 +424,7 @@ Contributors are recognized in our [Contributors Hall of Fame](./CONTRIBUTORS.md
 ```
 MIT License
 
-Copyright (c) 2025 Med-Genie Contributors
+Copyright (c) 2025 Wellness Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -449,9 +449,9 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ### 🤝 **Join our community of healthcare innovators**
 
-**Made with ❤️ by the Med-Genie Team**
+**Made with ❤️ by the Wellness Team**
 
-[⭐ Star](https://github.com/ashutosh-engineer/med-genie) • [🐛 Report Bug](https://github.com/ashutosh-engineer/med-genie/issues) • [💡 Request Feature](https://github.com/ashutosh-engineer/med-genie/issues) • [📖 Documentation](./Contributing.md)
+[⭐ Star](https://github.com/ashutosh-engineer/wellness) • [🐛 Report Bug](https://github.com/ashutosh-engineer/wellness/issues) • [💡 Request Feature](https://github.com/ashutosh-engineer/wellness/issues) • [📖 Documentation](./Contributing.md)
 
 *Part of [GirlScript Summer of Code 2025](https://gssoc.girlscript.tech/) - Empowering open source healthcare innovation*
 
@@ -463,7 +463,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 **A revolutionary AI-powered health companion that makes medical guidance accessible through natural conversations**
 
-🚀 **[Try Med-Genie Live](https://med-genie-five.vercel.app/)** | 📖 **[Documentation](#-getting-started)** | 🤝 **[Contributing](./Contributing.md)**
+🚀 **[Try Wellness Live](https://wellness-five.vercel.app/)** | 📖 **[Documentation](#-getting-started)** | 🤝 **[Contributing](./Contributing.md)**
 
 </div>
 
@@ -471,7 +471,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ## � Table of Contents
 
-- [🎯 What is Med-Genie?](#-what-is-med-genie)
+- [🎯 What is Wellness?](#-what-is-wellness)
 - [✨ Key Features](#-key-features)
 - [🎬 Demo & Screenshots](#-demo--screenshots)
 - [🏗️ Architecture & Tech Stack](#️-architecture--tech-stack)
@@ -484,11 +484,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 ---
 
-## 🎯 What is Med-Genie?
+## 🎯 What is Wellness?
 
-**Med-Genie** is an intelligent AI health assistant designed to democratize access to medical information and emergency guidance. Built as part of **GirlScript Summer of Code 2025 (GSSoC'25)**, this open-source project bridges the gap between patients and healthcare information through conversational AI.
+**Wellness** is an intelligent AI health assistant designed to democratize access to medical information and emergency guidance. Built as part of **GirlScript Summer of Code 2025 (GSSoC'25)**, this open-source project bridges the gap between patients and healthcare information through conversational AI.
 
-### 🌟 Why Med-Genie?
+### 🌟 Why Wellness?
 
 - **Instant Access**: Get immediate health guidance without waiting for appointments
 - **Natural Conversations**: Chat in plain language - no medical jargon required
@@ -500,7 +500,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 To make basic healthcare guidance accessible to everyone, everywhere, while maintaining the highest standards of privacy and encouraging professional medical consultation when needed.
 
-> **Important**: Med-Genie provides general health information and guidance. It is not a replacement for professional medical advice, diagnosis, or treatment. Always consult qualified healthcare professionals for medical concerns.
+> **Important**: Wellness provides general health information and guidance. It is not a replacement for professional medical advice, diagnosis, or treatment. Always consult qualified healthcare professionals for medical concerns.
 
 ---
 
@@ -518,7 +518,7 @@ Instant access to nearby hospitals, emergency contacts, and first-aid guidance w
 Describe your symptoms and receive AI-powered condition suggestions with actionable health insights.
 
 ### 🎤 **Voice Input Support**
-Speak to Med-Genie using built-in speech recognition for hands-free, accessible interaction.
+Speak to Wellness using built-in speech recognition for hands-free, accessible interaction.
 
 ### 🌓 **Adaptive Interface**
 Seamless dark/light mode switching for comfortable use in any environment, day or night.
@@ -559,7 +559,7 @@ Zero data storage, zero tracking. Your health conversations remain completely pr
 
 ### 🌐 **Try It Live**
 
-Experience Med-Genie in action: **[med-genie-five.vercel.app](https://med-genie-five.vercel.app/)**
+Experience Wellness in action: **[wellness-five.vercel.app](https://wellness-five.vercel.app/)**
 
 **Sample Interactions:**
 - *"I have a headache and feel nauseous. What could this be?"*
@@ -618,7 +618,7 @@ Experience Med-Genie in action: **[med-genie-five.vercel.app](https://med-genie-
 
 ### 🎯 **For Users**
 
-1. **Visit**: Go to [med-genie-five.vercel.app](https://med-genie-five.vercel.app/)
+1. **Visit**: Go to [wellness-five.vercel.app](https://wellness-five.vercel.app/)
 2. **Start Chatting**: Type or speak your health question
 3. **Get Guidance**: Receive instant AI-powered health insights
 4. **Stay Safe**: Follow up with healthcare professionals when needed
@@ -634,8 +634,8 @@ Experience Med-Genie in action: **[med-genie-five.vercel.app](https://med-genie-
 
 ```bash
 # Clone the repository
-git clone https://github.com/ashutosh-engineer/med-genie.git
-cd med-genie
+git clone https://github.com/ashutosh-engineer/wellness.git
+cd wellness
 
 # Install dependencies
 npm install
@@ -689,7 +689,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## � Usage Guide
 
-### 🗣️ **How to Chat with Med-Genie**
+### 🗣️ **How to Chat with Wellness**
 
 #### **Text Input**
 - Type your health question naturally: *"I have a sore throat, what should I do?"*
@@ -699,11 +699,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 #### **Voice Input**
 - Click the microphone icon 🎤
 - Speak clearly in your preferred language
-- Med-Genie will transcribe and respond
+- Wellness will transcribe and respond
 
 #### **Emergency Situations**
 - Use keywords like "emergency", "hospital", "urgent"
-- Med-Genie will prioritize emergency guidance
+- Wellness will prioritize emergency guidance
 - Always call emergency services (911, etc.) for life-threatening situations
 
 ### 🏥 **Feature Examples**
@@ -713,7 +713,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 **User**: *"I've been feeling tired and having trouble sleeping"*
 
-**Med-Genie**: *"I understand you're experiencing fatigue and sleep difficulties. Several factors could contribute to this, such as stress, lifestyle changes, or underlying health conditions. Here are some general suggestions:
+**Wellness**: *"I understand you're experiencing fatigue and sleep difficulties. Several factors could contribute to this, such as stress, lifestyle changes, or underlying health conditions. Here are some general suggestions:
 
 1. **Sleep Hygiene**: Try maintaining a consistent sleep schedule
 2. **Lifestyle**: Consider your diet, exercise, and stress levels
@@ -728,7 +728,7 @@ Would you like to share more details about when these symptoms started or any ot
 
 **User**: *"Find hospitals near me"*
 
-**Med-Genie**: *"I'll help you find nearby hospitals. Here are some medical facilities in your area:
+**Wellness**: *"I'll help you find nearby hospitals. Here are some medical facilities in your area:
 
 🏥 **General Hospital**
 📍 123 Main St, Your City
@@ -753,7 +753,7 @@ For life-threatening emergencies, please call 911 immediately."*
 Released under the MIT License.
 You’re free to use, modify, and distribute this software with proper attribution.
 
-© 2025 Med Genie — Built with ❤️ by Aayush Raj and contributors.
+© 2025 Wellness — Built with ❤️ by Aayush Raj and contributors.
 
 yaml
 Copy

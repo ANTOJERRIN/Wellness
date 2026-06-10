@@ -4,8 +4,8 @@
  */
 
 export class SecureTokenStorage {
-    private static readonly ACCESS_TOKEN_KEY = 'medgenie_access_token';
-    private static readonly REFRESH_TOKEN_KEY = 'medgenie_refresh_token';
+    private static readonly ACCESS_TOKEN_KEY = 'wellness_access_token';
+    private static readonly REFRESH_TOKEN_KEY = 'wellness_refresh_token';
 
     /**
      * Store access and refresh tokens securely

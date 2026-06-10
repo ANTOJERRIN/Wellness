@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Script to generate Open Graph images for Med Genie
+ * Script to generate Open Graph images for Wellness
  * This script can be used to generate social sharing images
  */
 
@@ -14,7 +14,7 @@ const path = require('path');
 // - sharp for image manipulation
 // - canvas for drawing
 
-console.log('🎨 Generating Open Graph images for Med Genie...');
+console.log('🎨 Generating Open Graph images for Wellness...');
 
 // Create the public directory if it doesn't exist
 const publicDir = path.join(__dirname, '../public');
@@ -28,7 +28,7 @@ const ogImageHTML = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Med Genie OG Image</title>
+    <title>Wellness OG Image</title>
     <style>
         body {
             margin: 0;
@@ -66,7 +66,7 @@ const ogImageHTML = `<!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🩺 Med Genie</div>
+        <div class="logo">🩺 Wellness</div>
         <div class="tagline">Your AI Health Assistant</div>
         <div class="description">Get instant AI-powered health advice and medical information</div>
     </div>

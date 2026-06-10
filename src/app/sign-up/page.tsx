@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Lottie from "lottie-react";
 import ecgAnimation from "@/assets/animations/ECG.json";
 
-function MedGenieRegisterForm() {
+function WellnessRegisterForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -127,7 +127,7 @@ function MedGenieRegisterForm() {
           className="w-32 h-32 mx-auto"
         />
         <h2 className="text-3xl font-bold text-center mb-2 text-white">
-          {isFromLogin ? "Create Your Account" : "Create MedGenie Account"}
+          {isFromLogin ? "Create Your Account" : "Create Wellness Account"}
         </h2>
         <p className="text-white/70 text-center mb-8 text-sm">
           {isFromLogin
@@ -400,7 +400,7 @@ function SignUpLoading() {
 export default function SignUpPage() {
   return (
     <Suspense fallback={<SignUpLoading />}>
-      <MedGenieRegisterForm />
+      <WellnessRegisterForm />
     </Suspense>
   );
 }

@@ -17,7 +17,7 @@ export function SiteHeader() {
         <div className="flex items-center space-x-6">
           <Link href="/" className="flex items-center space-x-2">
             <LogoIcon className="h-6 w-6 text-primary" />
-            <span className="font-bold sm:inline-block text-lg">Med Genie</span>
+            <span className="font-bold sm:inline-block text-lg">Wellness</span>
           </Link>
 
           {/* Navigation Links */}

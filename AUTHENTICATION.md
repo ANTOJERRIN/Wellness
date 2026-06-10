@@ -2,7 +2,7 @@
 
 ## Overview
 
-This documentation outlines the complete authentication system implemented for Med Genie, featuring JWT-based authentication, password hashing with bcrypt, API route protection, and session management.
+This documentation outlines the complete authentication system implemented for Wellness, featuring JWT-based authentication, password hashing with bcrypt, API route protection, and session management.
 
 ## Features Implemented
 
@@ -86,7 +86,7 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 JWT_EXPIRES_IN=7d
 
 # Database Configuration
-DATABASE_URL="postgresql://username:password@localhost:5432/medgenie"
+DATABASE_URL="postgresql://username:password@localhost:5432/wellness"
 ```
 
 ## API Endpoints
@@ -393,4 +393,4 @@ The authentication system includes comprehensive error handling:
 3. Check Network tab for API request/response details
 4. Ensure environment variables are loaded correctly
 
-This completes the comprehensive authentication system integration for Med Genie!
+This completes the comprehensive authentication system integration for Wellness!

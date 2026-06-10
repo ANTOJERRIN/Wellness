@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../core/network/dio_provider.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../core/storage/secure_token_storage.dart';
 
 class AuthState {
   final bool isAuthenticated;

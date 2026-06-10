@@ -6,7 +6,7 @@ const steps = [
   {
     title: "Chat Naturally with AI",
     description:
-      "Ask MedGenie your health-related queries in a conversational way. Get instant guidance without jargon.",
+      "Ask Wellness your health-related queries in a conversational way. Get instant guidance without jargon.",
   },
   {
     title: "Emergency Assistance",
@@ -31,12 +31,12 @@ const steps = [
   {
     title: "Privacy First",
     description:
-      "We don’t store your data. Your conversations stay private between you and MedGenie.",
+      "We don’t store your data. Your conversations stay private between you and Wellness.",
   },
   {
     title: "Upcoming: AI Diagnosis Engine",
     description:
-      "Soon, MedGenie will predict health issues using advanced AI-driven analysis.",
+      "Soon, Wellness will predict health issues using advanced AI-driven analysis.",
   },
   {
     title: "Upcoming: Location-based Assistance",
@@ -50,10 +50,10 @@ const PresenceBoostGuide = () => {
     <div data-aos="fade-up" className="relative z-10 w-full px-6 py-16 bg-black/10 border border-[#3FB5F440] rounded-2xl backdrop-blur-md">
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h2 className="text-4xl font-bold mb-4 text-white">
-          Your Guide to MedGenie
+          Your Guide to Wellness
         </h2>
         <p className="text-white/80 text-lg">
-          Discover how MedGenie can assist you with health queries, emergencies,
+          Discover how Wellness can assist you with health queries, emergencies,
           and upcoming smart features.
         </p>
       </div>

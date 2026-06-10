@@ -28,7 +28,7 @@ export default function Navbar() {
       {/* Logo */}
       <Link href="/">
         <span className="text-white text-xl font-bold tracking-wide">
-          MedGenie
+          Wellness
         </span>
       </Link>
 

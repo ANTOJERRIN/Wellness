@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_provider.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/loading_view.dart';
+import '../../../core/widgets/medical_disclaimer_banner.dart';
 
 class HealthProfileScreen extends ConsumerStatefulWidget {
   const HealthProfileScreen({super.key});
@@ -113,33 +116,15 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView(message: "Loading profile...")
           : ListView(
               padding: const EdgeInsets.all(20),
               children: [
                 // Info banner
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline,
-                          color: Color(0xFF3B82F6), size: 20),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "Providing your health context helps Med Genie give more personalized and relevant responses.",
-                          style: TextStyle(
-                              color: Color(0xFF93C5FD), fontSize: 13, height: 1.4),
-                        ),
-                      ),
-                    ],
-                  ),
+                MedicalDisclaimerBanner(
+                  message: "Providing your health context helps Wellness give more personalized and relevant responses.",
+                  icon: Icons.info_outline,
+                  color: const Color(0xFF3B82F6),
                 ),
                 const SizedBox(height: 24),
 
@@ -184,20 +169,10 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
                 ),
                 const SizedBox(height: 36),
 
-                SizedBox(
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _saveProfile,
-                    icon: const Icon(Icons.save_outlined),
-                    label: _isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2.5, color: Colors.black))
-                        : const Text("Save Vitals",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
+                AppButton(
+                  text: "Save Vitals",
+                  isLoading: _isSaving,
+                  onPressed: _saveProfile,
                 ),
                 const SizedBox(height: 24),
               ],

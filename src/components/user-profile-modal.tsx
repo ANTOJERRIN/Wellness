@@ -138,7 +138,7 @@ export function UserProfileModal({ isOpen, onClose, onSave, currentProfile, aiSu
         <DialogHeader>
           <DialogTitle>Personalize Your Experience</DialogTitle>
           <DialogDescription>
-            Provide some details to help Med Genie give you more relevant information. This data is only stored for your current session.
+            Provide some details to help Wellness give you more relevant information. This data is only stored for your current session.
             {aiSuggestedKey && (
               <span className="mt-2 block text-primary">
                 The AI has requested more information about your {profileFieldLabels[aiSuggestedKey].toLowerCase()}.

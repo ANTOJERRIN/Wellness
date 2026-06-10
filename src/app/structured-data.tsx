@@ -4,9 +4,9 @@ export function StructuredData() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Med Genie",
+    "name": "Wellness",
     "description": "Get instant AI-powered health advice and medical information. Ask questions about symptoms, treatments, and general health guidance with our intelligent medical chatbot.",
-    "url": "https://med-genie-five.vercel.app",
+    "url": "https://wellness-five.vercel.app",
     "applicationCategory": "HealthApplication",
     "operatingSystem": "Web Browser",
     "offers": {
@@ -16,16 +16,16 @@ export function StructuredData() {
     },
     "author": {
       "@type": "Organization",
-      "name": "Med Genie Team"
+      "name": "Wellness Team"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Med Genie",
-      "url": "https://med-genie-five.vercel.app"
+      "name": "Wellness",
+      "url": "https://wellness-five.vercel.app"
     },
     "potentialAction": {
       "@type": "UseAction",
-      "target": "https://med-genie-five.vercel.app"
+      "target": "https://wellness-five.vercel.app"
     },
     "featureList": [
       "AI-powered health advice",
@@ -34,7 +34,7 @@ export function StructuredData() {
       "Health consultation",
       "24/7 availability"
     ],
-    "screenshot": "https://med-genie-five.vercel.app/og-image.png",
+    "screenshot": "https://wellness-five.vercel.app/og-image.png",
     "softwareVersion": "1.0.0",
     "aggregateRating": {
       "@type": "AggregateRating",

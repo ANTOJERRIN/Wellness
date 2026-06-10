@@ -17,10 +17,10 @@ export function Contribute() {
                 <CardHeader>
                     <CardTitle className="text-3xl font-extrabold flex items-center gap-2">
                         <GitBranch className="h-8 w-8 text-primary" />
-                        Contribute to Med Genie
+                        Contribute to Wellness
                     </CardTitle>
                     <CardDescription>
-                        Join our open-source community and help improve Med Genie! Here’s how to get started and who’s already contributing.
+                        Join our open-source community and help improve Wellness! Here’s how to get started and who’s already contributing.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 text-lg leading-relaxed">
@@ -30,8 +30,8 @@ export function Contribute() {
                             How to Contribute
                         </h2>
                         <ol className="list-decimal list-inside space-y-2">
-                            <li>Fork the <a href="https://github.com/aayushraj1010/med-genie" target="_blank" rel="noreferrer" className="text-primary underline dark:text-blue-600">Med Genie repo</a>.</li>
-                            <li>Clone your fork locally: <code>git clone https://github.com/your-username/med-genie.git</code></li>
+                            <li>Fork the <a href="https://github.com/aayushraj1010/wellness" target="_blank" rel="noreferrer" className="text-primary underline dark:text-blue-600">Wellness repo</a>.</li>
+                            <li>Clone your fork locally: <code>git clone https://github.com/your-username/wellness.git</code></li>
                             <li>Create a new branch for your feature: <code>git checkout -b feature-name</code></li>
                             <li>Make improvements and commit with meaningful messages.</li>
                             <li>Push your branch and open a Pull Request to the main repo.</li>

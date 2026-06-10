@@ -1,6 +1,6 @@
 # 🔍 SEO & Social Sharing Implementation
 
-This document outlines the comprehensive SEO and social sharing implementation for Med Genie.
+This document outlines the comprehensive SEO and social sharing implementation for Wellness.
 
 ## 📋 Overview
 
@@ -21,8 +21,8 @@ The SEO implementation includes:
 ```typescript
 export const metadata: Metadata = {
   title: {
-    default: 'Med Genie - Your AI Health Assistant',
-    template: '%s | Med Genie'
+    default: 'Wellness - Your AI Health Assistant',
+    template: '%s | Wellness'
   },
   description: 'Get instant AI-powered health advice and medical information...',
   keywords: ['AI health assistant', 'medical chatbot', 'health advice', ...],
@@ -43,15 +43,15 @@ export const metadata: Metadata = {
 openGraph: {
   type: 'website',
   locale: 'en_US',
-  url: 'https://med-genie-five.vercel.app',
-  title: 'Med Genie - Your AI Health Assistant',
+  url: 'https://wellness-five.vercel.app',
+  title: 'Wellness - Your AI Health Assistant',
   description: 'Get instant AI-powered health advice...',
-  siteName: 'Med Genie',
+  siteName: 'Wellness',
   images: [{
-    url: 'https://med-genie-five.vercel.app/og-image.png',
+    url: 'https://wellness-five.vercel.app/og-image.png',
     width: 1200,
     height: 630,
-    alt: 'Med Genie - AI Health Assistant',
+    alt: 'Wellness - AI Health Assistant',
   }],
 }
 ```
@@ -66,11 +66,11 @@ openGraph: {
 ```typescript
 twitter: {
   card: 'summary_large_image',
-  title: 'Med Genie - Your AI Health Assistant',
+  title: 'Wellness - Your AI Health Assistant',
   description: 'Get instant AI-powered health advice...',
-  images: ['https://med-genie-five.vercel.app/og-image.png'],
-  creator: '@medgenie',
-  site: '@medgenie',
+  images: ['https://wellness-five.vercel.app/og-image.png'],
+  creator: '@wellness',
+  site: '@wellness',
 }
 ```
 
@@ -87,7 +87,7 @@ twitter: {
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Med Genie",
+  "name": "Wellness",
   "description": "Get instant AI-powered health advice...",
   // ... comprehensive schema markup
 }
@@ -104,7 +104,7 @@ const structuredData = {
 ```
 User-agent: *
 Allow: /
-Sitemap: https://med-genie-five.vercel.app/sitemap.xml
+Sitemap: https://wellness-five.vercel.app/sitemap.xml
 Crawl-delay: 1
 ```
 
@@ -113,7 +113,7 @@ Crawl-delay: 1
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://med-genie-five.vercel.app/</loc>
+    <loc>https://wellness-five.vercel.app/</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -126,8 +126,8 @@ Crawl-delay: 1
 #### Manifest.json (`public/manifest.json`)
 ```json
 {
-  "name": "Med Genie - AI Health Assistant",
-  "short_name": "Med Genie",
+  "name": "Wellness - AI Health Assistant",
+  "short_name": "Wellness",
   "description": "Get instant AI-powered health advice...",
   "start_url": "/",
   "display": "standalone",

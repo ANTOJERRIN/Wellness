@@ -34,7 +34,7 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-class TestMedGenieBackend(unittest.TestCase):
+class TestWellnessBackend(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create test tables
@@ -64,7 +64,7 @@ class TestMedGenieBackend(unittest.TestCase):
     def test_root_endpoint(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message": "Welcome to Med Genie Python Backend"})
+        self.assertEqual(response.json(), {"message": "Welcome to Wellness Python Backend"})
 
     def test_fallback_risk_calculator(self):
         # High-risk features setup

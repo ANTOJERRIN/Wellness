@@ -31,7 +31,7 @@ const VoiceSearch = dynamic(() => import('@/components/VoiceSearch'), {
 
 const initialWelcomeMessage: ChatMessage = {
   id: 'welcome-message',
-  text: "Hello! I'm Med Genie, your AI health assistant. How can I help you today? For more personalized answers, you can provide some optional health information.",
+  text: "Hello! I'm Wellness, your AI health assistant. How can I help you today? For more personalized answers, you can provide some optional health information.",
   sender: 'ai',
   timestamp: Date.now(),
 };
@@ -182,7 +182,7 @@ function HomePage() {
           messages
             .filter((msg) => !msg.isLoading && msg.id !== userMessage.id)
             .slice(-10)
-            .map((msg) => `${msg.sender === 'user' ? 'User' : 'Med Genie'}: ${msg.text}`)
+            .map((msg) => `${msg.sender === 'user' ? 'User' : 'Wellness'}: ${msg.text}`)
             .join('\n');
         const input: PersonalizedHealthQuestionAnsweringInput = {
           question,
@@ -411,7 +411,7 @@ function HomePage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-med-genie-dark text-foreground">
+    <div className="flex flex-col h-screen bg-wellness-dark text-foreground">
       <BackgroundParticles />
 
       <div className="flex flex-1 overflow-hidden content-container">
@@ -433,7 +433,7 @@ function HomePage() {
           </aside>
         )}
 
-        <main className="flex flex-col flex-1 p-4 overflow-hidden" role="main" aria-label="Chat with Med Genie">
+        <main className="flex flex-col flex-1 p-4 overflow-hidden" role="main" aria-label="Chat with Wellness">
           <header className="flex justify-between mb-4 shrink-0">
             <div className="flex space-x-2">
               {isMobile ? (
@@ -546,19 +546,19 @@ function HomePage() {
         >
           <div className="sticky top-4 space-y-4">
             <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Med Genie</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Wellness</h2>
               <p className="text-sm text-gray-800 dark:text-gray-300">Your AI Health Assistant</p>
             </div>
             <Alert variant="default" className="card-enhanced border-2 border-primary/30 shadow-lg pulse-animation">
               <AlertCircle className="h-5 w-5 text-primary" />
               <AlertTitle className="text-lg font-bold mb-2 text-gray-900 dark:text-white">Important Notice</AlertTitle>
               <AlertDescription className="leading-relaxed text-gray-800 dark:text-gray-300">
-                Med Genie provides general health information and is not a substitute for professional medical advice. Always
+                Wellness provides general health information and is not a substitute for professional medical advice. Always
                 consult a doctor for serious concerns.
               </AlertDescription>
             </Alert>
             <div className="mt-6 p-4 rounded-lg card-enhanced border border-primary/20">
-              <h3 className="text-md font-semibold mb-2 text-gray-900 dark:text-white">How to Use Med Genie</h3>
+              <h3 className="text-md font-semibold mb-2 text-gray-900 dark:text-white">How to Use Wellness</h3>
               <ul className="list-disc pl-5 text-sm space-y-2 text-gray-800 dark:text-gray-300">
                 <li>Ask any health-related questions</li>
                 <li>Update your health profile for better answers</li>

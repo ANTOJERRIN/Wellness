@@ -17,7 +17,7 @@ const Footer = () => {
               </h3>
               <p className="text-white/80 max-w-md text-lg">
                 Subscribe to our newsletter for the latest health tips, AI advancements, 
-                and Med Genie updates.
+                and Wellness updates.
               </p>
             </div>
             <div className="min-w-[400px]">
@@ -31,7 +31,7 @@ const Footer = () => {
           <div>
             <div>
               <h2 className="text-3xl font-extrabold mb-3 tracking-tight">
-                MedGenie
+                Wellness
               </h2>
               <p className="text-sm text-white/80 leading-relaxed mb-6">
                 The Future of Healthcare Collaboration
@@ -100,7 +100,7 @@ const Footer = () => {
             <ul className="space-y-3 text-sm text-white/80">
               <li>
                 <a
-                  href="https://discord.gg/medgenie"
+                  href="https://discord.gg/wellness"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -110,7 +110,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://twitter.com/medgenie"
+                  href="https://twitter.com/wellness"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -120,7 +120,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://t.me/medgenie"
+                  href="https://t.me/wellness"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
@@ -167,7 +167,7 @@ const Footer = () => {
 
         {/* Bottom Line */}
         <div className="mt-12 border-t border-white/25 pt-5 text-xs text-white/70 text-center">
-          © 2025 MedGenie. All Rights Reserved.
+          © 2025 Wellness. All Rights Reserved.
         </div>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_provider.dart';
+import '../../../core/network/dio_client.dart';
 
 class ChatMessage {
   final String text;
@@ -30,7 +30,7 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
     state = [
       ChatMessage(
         text:
-            "Hello! I'm Med Genie, your AI health assistant. How can I help you today?\n\nTip: Fill out your Health Profile for more personalized answers.",
+            "Hello! I'm Wellness, your AI health assistant. How can I help you today?\n\nTip: Fill out your Health Profile for more personalized answers.",
         sender: 'ai',
         timestamp: DateTime.now(),
       )

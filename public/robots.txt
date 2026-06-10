@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://med-genie-five.vercel.app/sitemap.xml
+Sitemap: https://wellness-five.vercel.app/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1 

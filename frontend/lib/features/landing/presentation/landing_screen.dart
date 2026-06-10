@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_provider.dart';
-import '../../../core/theme/theme_provider.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../app/theme.dart';
 import '../../auth/presentation/auth_screen.dart';
 import '../../contact/presentation/contact_screen.dart';
 import '../../specialist/presentation/specialist_screen.dart';
@@ -95,7 +95,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                   style: TextStyle(fontSize: 22)),
               SizedBox(width: 8),
               Text(
-                "MedGenie",
+                "Wellness",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -222,7 +222,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                   colors: [Color(0xFF10B981), Color(0xFF3B82F6)],
                 ).createShader(bounds),
                 child: const Text(
-                  "MedGenie – Care at Your Fingertips",
+                  "Wellness – Care at Your Fingertips",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white,
@@ -233,7 +233,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               const SizedBox(height: 24),
 
               Text(
-                "MedGenie is your smart AI health assistant — get instant answers to medical questions, emergency guidance, and symptom-based suggestions. Privacy-first, accessible anywhere, anytime.",
+                "Wellness is your smart AI health assistant — get instant answers to medical questions, emergency guidance, and symptom-based suggestions. Privacy-first, accessible anywhere, anytime.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.grey.shade400,
@@ -263,7 +263,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                     ),
                     icon: const Icon(Icons.rocket_launch_outlined,
                         size: 20),
-                    label: const Text("Try MedGenie",
+                    label: const Text("Try Wellness",
                         style: TextStyle(
                             fontSize: 17, fontWeight: FontWeight.bold)),
                   ),
@@ -327,7 +327,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
         "icon": Icons.mic_none,
         "title": "Voice Input",
         "desc":
-            "Speak directly to Med Genie using built-in speech recognition for hands-free assistance."
+            "Speak directly to Wellness using built-in speech recognition for hands-free assistance."
       },
       {
         "icon": Icons.dark_mode_outlined,
@@ -348,7 +348,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
       child: Column(
         children: [
           const Text(
-            "How Med Genie Helps You",
+            "How Wellness Helps You",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
@@ -445,7 +445,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
       {
         "title": "Chat Naturally with AI",
         "desc":
-            "Ask MedGenie your health-related queries in a conversational way. Get instant guidance without medical jargon."
+            "Ask Wellness your health-related queries in a conversational way. Get instant guidance without medical jargon."
       },
       {
         "title": "Emergency Assistance",
@@ -480,7 +480,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
       {
         "title": "Privacy First",
         "desc":
-            "No data tracking beyond your session. Your health conversations remain private between you and MedGenie."
+            "No data tracking beyond your session. Your health conversations remain private between you and Wellness."
       },
     ];
 
@@ -490,7 +490,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
       child: Column(
         children: [
           const Text(
-            "Your Guide to MedGenie",
+            "Your Guide to Wellness",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
@@ -498,7 +498,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Discover how MedGenie can assist you across every health need.",
+            "Discover how Wellness can assist you across every health need.",
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
           ),
@@ -574,34 +574,34 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   Widget _buildFaqs() {
     final faqs = [
       {
-        "q": "What is Med Genie?",
+        "q": "What is Wellness?",
         "a":
-            "Med Genie is an AI-powered health assistant that helps you with basic medical queries, emergency guidance, and symptom-based suggestions — all through natural conversation."
+            "Wellness is an AI-powered health assistant that helps you with basic medical queries, emergency guidance, and symptom-based suggestions — all through natural conversation."
       },
       {
-        "q": "Is Med Genie a replacement for a doctor?",
+        "q": "Is Wellness a replacement for a doctor?",
         "a":
-            "No. Med Genie is designed for basic guidance and quick information. It does not replace professional medical advice, diagnosis, or treatment. Always consult a qualified doctor for medical concerns."
+            "No. Wellness is designed for basic guidance and quick information. It does not replace professional medical advice, diagnosis, or treatment. Always consult a qualified doctor for medical concerns."
       },
       {
-        "q": "Does Med Genie store my data?",
+        "q": "Does Wellness store my data?",
         "a":
             "Your health profile and chat history are stored securely for personalized responses. All data is encrypted and never shared with third parties."
       },
       {
-        "q": "Can Med Genie help in emergencies?",
+        "q": "Can Wellness help in emergencies?",
         "a":
-            "Yes. Med Genie can provide emergency contact numbers, nearby hospital information, and first-aid tips, but always call emergency services immediately for life-threatening situations."
+            "Yes. Wellness can provide emergency contact numbers, nearby hospital information, and first-aid tips, but always call emergency services immediately for life-threatening situations."
       },
       {
-        "q": "What features does Med Genie offer?",
+        "q": "What features does Wellness offer?",
         "a":
             "AI chat, symptom checking, heart risk prediction, specialist recommendations, nearby hospital finder, voice input, health profile personalization, and dark/light mode toggle."
       },
       {
-        "q": "Is Med Genie free to use?",
+        "q": "Is Wellness free to use?",
         "a":
-            "Yes! Med Genie is free for everyone. All core features are available without any subscription."
+            "Yes! Wellness is free for everyone. All core features are available without any subscription."
       },
     ];
 
@@ -739,7 +739,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           const SizedBox(height: 56),
 
           const Text(
-            "🩺 MedGenie",
+            "🩺 Wellness",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 26,
@@ -780,7 +780,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           const Divider(color: Colors.white24, thickness: 1),
           const SizedBox(height: 16),
           const Text(
-            "© 2026 MedGenie. All Rights Reserved. Built with Flutter & FastAPI.",
+            "© 2026 Wellness. All Rights Reserved. Built with Flutter & FastAPI.",
             style: TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ],
@@ -801,7 +801,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          "Subscribe for the latest health tips and MedGenie AI updates.",
+          "Subscribe for the latest health tips and Wellness AI updates.",
           style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
         ),

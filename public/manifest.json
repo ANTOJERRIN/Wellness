@@ -1,6 +1,6 @@
 {
-  "name": "Med Genie - AI Health Assistant",
-  "short_name": "Med Genie",
+  "name": "Wellness - AI Health Assistant",
+  "short_name": "Wellness",
   "description": "Get instant AI-powered health advice and medical information",
   "start_url": "/",
   "display": "standalone",

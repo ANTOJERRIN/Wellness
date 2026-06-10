@@ -4,11 +4,13 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../providers/chat_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../profile/presentation/health_profile_screen.dart';
-import '../../risk_assessment/presentation/heart_risk_screen.dart';
+import '../../risk/presentation/heart_risk_screen.dart';
 import '../../specialist/presentation/specialist_screen.dart';
 import '../../contact/presentation/contact_screen.dart';
-import '../../../core/network/dio_provider.dart';
-import '../../../core/theme/theme_provider.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../app/theme.dart';
+import '../../../core/widgets/medical_disclaimer_banner.dart';
+import '../../../core/constants/app_text.dart';
 import 'chat_history_drawer.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -129,7 +131,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Med Genie",
+                  "Wellness",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
@@ -191,38 +193,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: Column(
         children: [
           // Emergency banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.redAccent.withValues(alpha: 0.08),
-            child: Row(
-              children: [
-                const Icon(Icons.warning_amber_rounded,
-                    color: Colors.redAccent, size: 18),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    "Med Genie provides general health info only. For emergencies, call your local emergency number immediately.",
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: Colors.redAccent.shade100,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const SpecialistScreen()),
-                  ),
-                  icon: const Icon(Icons.open_in_new,
-                      size: 14, color: Color(0xFF3B82F6)),
-                  label: const Text("Specialists",
-                      style: TextStyle(
-                          fontSize: 12, color: Color(0xFF3B82F6))),
-                ),
-              ],
+          MedicalDisclaimerBanner(
+            message: AppText.emergencyWarning,
+            icon: Icons.warning_amber_rounded,
+            trailing: TextButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const SpecialistScreen()),
+              ),
+              icon: const Icon(Icons.open_in_new,
+                  size: 14, color: const Color(0xFF3B82F6)),
+              label: const Text("Specialists",
+                  style: TextStyle(
+                      fontSize: 12, color: const Color(0xFF3B82F6))),
             ),
           ),
 
@@ -370,7 +354,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               const Padding(
                 padding: EdgeInsets.only(bottom: 6),
                 child: Text(
-                  "🩺 Med Genie",
+                  "🩺 Wellness",
                   style: TextStyle(
                     color: Color(0xFF10B981),
                     fontSize: 11,

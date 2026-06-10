@@ -6,7 +6,7 @@ export default function CookiePolicyPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">Cookie Policy</h1>
       <p className="mb-2">
-        This Cookie Policy explains how Med-Genie uses cookies and similar technologies to
+        This Cookie Policy explains how Wellness uses cookies and similar technologies to
         enhance your experience on our platform.
       </p>
       <h2 className="text-xl font-semibold mt-4">What Are Cookies?</h2>
@@ -22,7 +22,7 @@ export default function CookiePolicyPage() {
       </ul>
       <h2 className="text-xl font-semibold mt-4">Managing Cookies</h2>
       <p>
-        You can disable cookies in your browser settings, but some features of Med-Genie may not
+        You can disable cookies in your browser settings, but some features of Wellness may not
         function properly.
       </p>
     </div>

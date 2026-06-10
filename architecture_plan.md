@@ -1,122 +1,98 @@
-# 🩺 Med Genie - System Architecture Plan
+# 🩺 Wellness - System Architecture Plan
 
-Welcome to the Med Genie Architecture Plan. This document provides a comprehensive overview of the Med Genie application's directory structure, technologies, technical architecture, and a roadmap outlining key areas where we (User and AI Agent) can collaborate and contribute.
+Welcome to the Wellness Architecture Plan. This document provides a comprehensive overview of the Wellness application's directory structure, technical architecture, and codebase organization as built.
 
 ---
 
 ## 🗺️ System Architecture Overview
 
-Med Genie is designed as a state-of-the-art AI-powered health assistant featuring secure JWT authentication, health profile customization, and context-aware medical Q&A. The system consists of three main architectural layers:
+Wellness is a smart, AI-powered health assistant featuring secure JWT authentication, health profile customization, conversational AI chat, heart risk assessment, and specialist directories. The system consists of two primary runtime stacks: the primary production stack (**Flutter + FastAPI**) and the alternative stack (**Next.js + Prisma**).
+
+### 🚀 Primary Production Stack (Flutter + FastAPI)
 
 ```mermaid
 graph TD
-    subgraph Client [Frontend Layer (Next.js 15 & React 18)]
-        UI[Tailwind & shadcn/ui Components]
-        Contexts[AuthContext & ThemeProvider]
-        Hooks[useChatHistory & useToast]
-        Voice[VoiceSearch (Web Speech API)]
+    subgraph Client [Frontend Layer (Flutter + Riverpod)]
+        UI[Screens: Auth, Chat, Profile, Risk, Specialist, Contact]
+        State[State Management: Riverpod Providers]
+        Net[Network: Dio + JWT SecureStorage Interceptor]
     end
 
-    subgraph API [Backend API Layer (Next.js App Router)]
-        Mid[Middleware: Security Headers & CORS]
-        AuthAPI[Auth Endpoints: Login/Register/Refresh/OAuth]
-        UserAPI[User & Profile endpoints]
-        HospAPI[Hospital Finder & Newsletter]
+    subgraph API [Backend API Layer (FastAPI + SQLite)]
+        B_Auth[Auth Endpoints: Register/Login/Logout]
+        B_Profile[User Profile Management]
+        B_Chat[Gemini AI Session-based Chat]
+        B_Risk[Heart Cardiac Risk Calculator]
+        B_Spec[Specialist & Hospital Locator]
+        B_Misc[Newsletter & Contact Forms]
     end
 
-    subgraph Security [Security & DB Layer]
-        SecUtil[DatabaseSecurity & InputSanitizer]
-        JWTUtil[JWT & Token Storage]
-        SecureDB[SecurePrisma Wrapper]
-        DB[(Prisma Client / SQLite/Postgres)]
+    subgraph Storage [Database & Tests]
+        DB[(SQLite - dev.db)]
+        Tests[test_main.py: Integration Tests]
     end
 
-    subgraph AI [AI & Orchestration Layer]
-        Genkit[Google Genkit Framework]
-        Gemini[Gemini 1.5 Flash Model]
-        Flows[Personalized Q&A & Specialist Rec Flows]
-        LangGraph[LangGraph ReAct Agent]
-        Tools[DuckDuckGo & Calculator Tools]
-    end
-
-    UI --> Contexts
-    Contexts --> API
-    API --> Mid
-    Mid --> SecUtil
-    SecUtil --> SecureDB
-    SecureDB --> DB
-    API --> Flows
-    Flows --> Genkit
-    Genkit --> Gemini
-    LangGraph --> Tools
-    LangGraph --> Gemini
+    UI --> State
+    State --> Net
+    Net -- "HTTPS + Bearer JWT" --> API
+    API --> DB
+    Tests --> API
 ```
 
 ---
 
 ## 📁 Technical Subsystems Analysis
 
-### 1. Frontend & Client Layer
-* **Framework**: Next.js 15 (App Router) with React 18.
-* **State & Authentication Context**:
-  * [AuthContext.tsx](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/contexts/AuthContext.tsx) handles login, sign-up, JWT validation, token refreshing, and global state persistence.
-  * [useChatHistory.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/hooks/use-chat-history.ts) manages chat sessions, renaming, deleting, and storing locally while synchronizing with the user's active session.
-* **Core Components**:
-  * [ChatInterface.tsx](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/components/ChatInterface.tsx) & [homepage/page.tsx](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/app/homepage/page.tsx): Main dashboard integrating custom chat input, a permanently-visible quick reply grid, particle backgrounds, and the important medical disclaimer.
-  * [VoiceSearch.tsx](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/components/VoiceSearch.tsx): Integrated speech-to-text queries utilizing the browser's Web Speech API.
-  * [UserProfileModal.tsx](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/components/user-profile-modal.tsx): Dynamic form enabling users to submit optional health factors (medical history, lifestyle, symptoms, allergies, medications) to personalize AI recommendations.
+### 1. Flutter Frontend & Client Layer
+* **Framework**: Flutter 3.x using Dart.
+* **State Management**: Riverpod for reactive state management and dependency injection.
+* **Networking**:
+  * [dio_provider.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/core/network/dio_provider.dart) configures the Dio client, managing request headers and attaching JWT authentication tokens retrieved securely via `flutter_secure_storage`.
+* **Subsystems & Features (`frontend/lib/features/`)**:
+  * `landing`: Public landing page with a features grid, FAQ accordions, and newsletter subscription ([landing_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/landing/presentation/landing_screen.dart)).
+  * `auth`: Login & Register screen with JWT authentication flow ([auth_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/auth/presentation/auth_screen.dart)).
+  * `chat`: Smart voice/text conversational companion ([dashboard_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/chat/presentation/dashboard_screen.dart)) with session history side drawer ([chat_history_drawer.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/chat/presentation/chat_history_drawer.dart)).
+  * `profile`: Interactive health questionnaire modifying backend database models ([health_profile_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/profile/presentation/health_profile_screen.dart)).
+  * `risk_assessment`: Form assessing heart health risk factors ([heart_risk_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/risk_assessment/presentation/heart_risk_screen.dart)).
+  * `specialist`: Directories for finding medical specialists & nearby hospitals ([specialist_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/specialist/presentation/specialist_screen.dart)).
+  * `contact`: General support and enquiry forms ([contact_screen.dart](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/frontend/lib/features/contact/presentation/contact_screen.dart)).
 
-### 2. Backend, API, & Middleware Layer
-* **Security Middleware**:
-  * [middleware.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/middleware.ts) enforces rigid Content Security Policies (CSP), Frame Options (preventing Clickjacking), Referrer Policies, and CORS headers for APIs.
-* **Authentication Infrastructure**:
-  * Fully modular routes for registration, token generation, refresh tokens, cookie updates, email availability, and Google OAuth redirection.
-* **Location-based Search**:
-  * `/api/nearby-hospitals` dynamically searches and responds with hospital details based on query location parameters.
-
-### 3. Database & Security Layer
-* **Prisma Schema**:
-  * [schema.prisma](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/prisma/schema.prisma) defines rich relational models: `User`, `Session`, `AuditLog`, `HealthProfile`, `ChatSession`, `ChatMessage`, `RateLimit`, `SecurityEvent`, and `NewsletterSubscription`.
-* **Prisma Wrapper**:
-  * [secure-prisma.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/lib/secure-prisma.ts) wraps queries inside transaction logging hooks, query duration tracking, parameter sanitization, and rate limit validation.
-* **Utility Classes**:
-  * [database-security.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/lib/database-security.ts): Direct checks for SQL-injection patterns, input length truncation, and email/name regex parsing.
-  * [input-sanitizer.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/lib/input-sanitizer.ts): HTML/Script stripping, XSS protection, and logging security events for auditing.
-
-### 4. AI & Orchestration Layer
-* **Genkit Framework**:
-  * [genkit.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/ai/genkit.ts) handles initial initialization.
-* **Personalized Q&A Flow**:
-  * [personalized-health-question-answering.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/ai/flows/personalized-health-question-answering.ts) feeds conversation history + health profiles to the Gemini model, requesting structured JSON containing the answers and potential follow-up questions.
-* **ReAct Agent & Custom Tools**:
-  * [agent.ts](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/src/ai/agent.ts) builds a stateful LangGraph agent that has access to search (`DuckDuckGoSearch`) and calculation (`CalculatorTool` for BMI/Dosage) tools.
+### 2. FastAPI Backend Layer
+* **Framework**: FastAPI (Python 3.11+) served via Uvicorn.
+* **Database**: SQLite (`dev.db`) with SQLAlchemy ORM.
+* **Core API Endpoints (`backend/app/api/`)**:
+  * [auth.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/auth.py): Implements secure registration, login (JWT token emission), and logout.
+  * [profile.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/profile.py): API for managing user demographic and clinical features.
+  * [chat.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/chat.py): Coordinates chat session states and stream integration with the Google Gemini API.
+  * [risk.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/risk.py): Cardiac health predictor based on cholesterol, BP, glucose, smoking status, and physical activity.
+  * [specialist.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/specialist.py): Recommends specialist domains based on patient symptoms and demographics.
+  * [hospitals.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/hospitals.py): Looks up local hospitals and clinics.
+  * [newsletter.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/newsletter.py) & [contact.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/app/api/contact.py): Support subscriptions and general inquiries.
+* **Integration Tests**: [test_main.py](file:///c:/Users/JERANTJENCATH/Desktop/Wellness/backend/test_main.py) runs unittests testing each endpoint.
 
 ---
 
-## 🤝 Collaboration & Contribution Division
+### 🌐 Legacy / Alternative Next.js Web Stack
 
-To rapidly build and deploy Med Genie, we can divide features based on specialization:
+For web-only deployments, the project maintains an alternative Next.js architecture:
 
-| Area / Feature | 🧑‍💻 User Contribution (Design & Integration) | 🤖 AI Agent Contribution (Implementation & Code) |
-| :--- | :--- | :--- |
-| **Mobile App (PWA & Flutter)** | • Provide feedback on responsive dashboard styling.<br>• Set up Flutter project settings or native configuration. | • Code custom mobile widgets for the Flutter repository.<br>• Implement Service Workers & manifest assets for standard PWA. |
-| **Authentication & Security** | • Set up environment configuration (OAuth provider keys, JWT secrets).<br>• Define user security policies. | • Build Two-Factor Authentication (2FA) flows & API routes.<br>• Add Zod validation schemas to existing login/register endpoints. |
-| **AI Personalization & Diagnostics** | • Fine-tune prompts for specialized medical areas (e.g. cardio, pediatric).<br>• Verify medical suggestions & disclaimer tone. | • Integrate advanced LangGraph multi-agent orchestration.<br>• Build specialized specialist avatar API routes and AI workflows. |
-| **Location & External APIs** | • Set up location provider API keys (Google Maps API / OpenStreetMap). | • Create a robust local search parser with geo-filtering.<br>• Write integrations for local clinic/hospital registries. |
-| **Data Security & Hosting** | • Configure and manage PostgreSQL production databases (e.g., Supabase).<br>• Handle cloud environment secrets. | • Optimize Prisma queries, database indices, and schema migrations.<br>• Implement automated sanitization scripts and DB cleanups. |
+* **Frontend**: Next.js 15 (App Router) + React 18 styled with Tailwind CSS and shadcn/ui.
+* **Database & ORM**: Prisma Client linking to SQLite or PostgreSQL.
+* **API Middleware**: Route middleware enforcing CORS and strict Content Security Policies.
+* **Orchestration**: Integration with Google Genkit Framework and LangGraph agents.
+* **Core Modules (`src/`)**:
+  * `contexts/AuthContext.tsx`: Manages React authentication state and JWT renewal.
+  * `lib/secure-prisma.ts`: Secure wrapper logging queries and checking SQL injections.
+  * `components/landing_page/`: Responsive React components (Hero, NavBar, Footer, etc.).
 
 ---
 
-## 📈 Suggested Roadmap
+## 🤝 Roadmap & Recommendations
 
-1. **Phase 1: Deep Security & Validation Polish**
-   * Review all open API endpoints and add input-sanitizer hooks to prevent edge-case injections.
-   * Add 2FA/Password Reset flows.
+1. **Production Deployment**:
+   * Migrate the backend SQLite database to a managed PostgreSQL cluster (e.g. Supabase).
+   * Deploy the FastAPI backend to a container service (e.g. Render, AWS ECS) and Flutter web/Next.js to Vercel/Firebase hosting.
 
-2. **Phase 2: Specialized Diagnostics & RAG**
-   * Integrate vector search (e.g. Pinecone/Supabase Vector) to support RAG (Retrieval-Augmented Generation) on certified medical literature.
-   * Customize specialists (e.g. Cardiologist AI, Nutritionist AI) utilizing tailored system prompts.
-
-3. **Phase 3: Native Integration & Location Services**
-   * Replace mock hospital APIs with real Google Maps/OSM search queries.
-   * Transition app into an installable Progressive Web App (PWA) with push notifications.
+2. **AI Capabilities Enhancement**:
+   * Integrate RAG (Retrieval-Augmented Generation) on certified medical literature in the FastAPI chat service.
+   * Expand specialist recommendations using clinical decision-support models.

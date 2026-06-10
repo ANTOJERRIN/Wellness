@@ -18,8 +18,8 @@ const geistMono = GeistMono;
 
 export const metadata: Metadata = {
   title: {
-    default: 'Med Genie - Your AI Health Assistant',
-    template: '%s | Med Genie',
+    default: 'Wellness - Your AI Health Assistant',
+    template: '%s | Wellness',
   },
   description:
     'Get instant AI-powered health advice and medical information. Ask questions about symptoms, treatments, and general health guidance with our intelligent medical chatbot.',
@@ -35,43 +35,43 @@ export const metadata: Metadata = {
     'health questions',
     'AI doctor',
   ],
-  authors: [{ name: 'Med Genie Team' }],
-  creator: 'Med Genie',
-  publisher: 'Med Genie',
+  authors: [{ name: 'Wellness Team' }],
+  creator: 'Wellness',
+  publisher: 'Wellness',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://med-genie-five.vercel.app'),
+  metadataBase: new URL('https://wellness-five.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://med-genie-five.vercel.app',
-    title: 'Med Genie - Your AI Health Assistant',
+    url: 'https://wellness-five.vercel.app',
+    title: 'Wellness - Your AI Health Assistant',
     description:
       'Get instant AI-powered health advice and medical information. Ask questions about symptoms, treatments, and general health guidance.',
-    siteName: 'Med Genie',
+    siteName: 'Wellness',
     images: [
       {
-        url: 'https://med-genie-five.vercel.app/og-image.png',
+        url: 'https://wellness-five.vercel.app/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Med Genie - AI Health Assistant',
+        alt: 'Wellness - AI Health Assistant',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Med Genie - Your AI Health Assistant',
+    title: 'Wellness - Your AI Health Assistant',
     description:
       'Get instant AI-powered health advice and medical information. Ask questions about symptoms, treatments, and general health guidance.',
-    images: ['https://med-genie-five.vercel.app/og-image.png'],
-    creator: '@medgenie',
-    site: '@medgenie',
+    images: ['https://wellness-five.vercel.app/og-image.png'],
+    creator: '@wellness',
+    site: '@wellness',
   },
   robots: {
     index: true,
@@ -96,8 +96,8 @@ export const metadata: Metadata = {
     'theme-color': '#ffffff',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'Med Genie',
-    'application-name': 'Med Genie',
+    'apple-mobile-web-app-title': 'Wellness',
+    'application-name': 'Wellness',
     'msapplication-TileImage': '/favicon.ico',
     'msapplication-config': '/browserconfig.xml',
   },
@@ -155,7 +155,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <Preloader />
-        <ThemeProvider defaultTheme="dark" storageKey="med-genie-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="wellness-theme">
           <AuthProvider>
             <AOSProvider>
               <ErrorBoundary>

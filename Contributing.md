@@ -1,6 +1,6 @@
-# 🤝 Contributing to Med-Genie
+# 🤝 Contributing to Wellness
 
-Welcome to Med-Genie! We're excited that you want to contribute to this AI-powered medical chatbot project. This guide will help you get started, especially if you're new to open source contributions.
+Welcome to Wellness! We're excited that you want to contribute to this AI-powered medical chatbot project. This guide will help you get started, especially if you're new to open source contributions.
 
 ## 📋 Table of Contents
 
@@ -27,7 +27,7 @@ Before you begin, make sure you have:
 
 ### Tech Stack
 
-Med-Genie is built with:
+Wellness is built with:
 
 - **Frontend**: Next.js 14, React, TypeScript
 - **Styling**: Tailwind CSS, Radix UI components
@@ -40,7 +40,7 @@ Med-Genie is built with:
 
 ### 1. Fork the Repository
 
-1. Visit the [Med-Genie repository](https://github.com/aayushraj1010/med-genie)
+1. Visit the [Wellness repository](https://github.com/aayushraj1010/wellness)
 2. Click the **"Fork"** button in the top-right corner
 3. This creates a copy of the repository in your GitHub account
 
@@ -48,13 +48,13 @@ Med-Genie is built with:
 
 ```bash
 # Clone your forked repository
-git clone https://github.com/YOUR-USERNAME/med-genie.git
+git clone https://github.com/YOUR-USERNAME/wellness.git
 
 # Navigate to the project directory
-cd med-genie
+cd wellness
 
 # Add the original repository as upstream
-git remote add upstream https://github.com/original-repo/med-genie.git
+git remote add upstream https://github.com/original-repo/wellness.git
 ```
 
 ### 3. Install Dependencies
@@ -99,7 +99,7 @@ npm run genkit:dev
 
 ### Step 1: Pick an Issue
 
-1. Browse [open issues](https://github.com/aayushraj1010/med-genie/issues)
+1. Browse [open issues](https://github.com/aayushraj1010/wellness/issues)
 2. Look for issues labeled `good first issue` or `beginner-friendly`
 3. Comment on the issue saying you'd like to work on it
 4. Wait for maintainer approval before starting
@@ -323,7 +323,7 @@ For feature requests:
 1. **Describe the problem** you're trying to solve
 2. **Explain your proposed solution**
 3. **Consider alternative solutions**
-4. **Explain why this feature would be useful** to Med-Genie users
+4. **Explain why this feature would be useful** to Wellness users
 
 ## 🚀 Good First Issues
 
@@ -355,7 +355,7 @@ Perfect for beginners:
 
 Contributors will be:
 
-- Added to our [Contributors list](https://github.com/your-repo/med-genie/graphs/contributors)
+- Added to our [Contributors list](https://github.com/your-repo/wellness/graphs/contributors)
 - Mentioned in release notes
 - Eligible for GSSoC'25 points and recognition
 - Invited to our contributor community
@@ -381,7 +381,7 @@ Don't hesitate to ask for help! We're here to support you:
 
 ## 🙏 Thank You!
 
-Thank you for contributing to Med-Genie! Your contributions help make healthcare assistance more accessible to everyone. Every contribution, no matter how small, makes a difference.
+Thank you for contributing to Wellness! Your contributions help make healthcare assistance more accessible to everyone. Every contribution, no matter how small, makes a difference.
 
 **Happy coding! 🚀**
 

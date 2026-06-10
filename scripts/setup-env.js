@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔐 Setting up environment variables for Med-Genie...\n');
+console.log('🔐 Setting up environment variables for Wellness...\n');
 
 // Generate a secure JWT secret
 const jwtSecret = crypto.randomBytes(64).toString('base64');

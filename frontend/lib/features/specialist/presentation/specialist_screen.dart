@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/dio_provider.dart';
+import '../../../core/network/dio_client.dart';
 
 class SpecialistScreen extends ConsumerStatefulWidget {
   const SpecialistScreen({super.key});

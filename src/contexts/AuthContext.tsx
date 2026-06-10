@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const loadUserData = () => {
       try {
         const savedAccessToken = SecureTokenStorage.getAccessToken();
-        const savedUser = sessionStorage.getItem("medgenie_user");
+        const savedUser = sessionStorage.getItem("wellness_user");
 
         if (savedAccessToken && savedUser) {
           setAccessToken(savedAccessToken);
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error("Error loading user data:", error);
         SecureTokenStorage.clearTokens();
-        sessionStorage.removeItem("medgenie_user");
+        sessionStorage.removeItem("wellness_user");
       }
       setIsLoading(false);
     };
@@ -128,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAccessToken(data.accessToken);
         setUser(data.user);
         SecureTokenStorage.setTokens(data.accessToken, data.refreshToken || "");
-        sessionStorage.setItem("medgenie_user", JSON.stringify(data.user));
+        sessionStorage.setItem("wellness_user", JSON.stringify(data.user));
         return { success: true, message: data.message };
       } else {
         return { success: false, message: data.message || "Login failed" };
@@ -160,7 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAccessToken(data.accessToken);
         setUser(data.user);
         SecureTokenStorage.setTokens(data.accessToken, data.refreshToken || "");
-        sessionStorage.setItem("medgenie_user", JSON.stringify(data.user));
+        sessionStorage.setItem("wellness_user", JSON.stringify(data.user));
         return { success: true, message: data.message };
       } else {
         return {
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setAccessToken(null);
       SecureTokenStorage.clearTokens();
-      sessionStorage.removeItem("medgenie_user");
+      sessionStorage.removeItem("wellness_user");
       router.push("/login");
     }
   };

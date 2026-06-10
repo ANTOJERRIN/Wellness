@@ -33,7 +33,7 @@ const features = [
   {
     id: 4,
     title: "Voice Input",
-    desc: "Speak directly to Med Genie using built-in speech recognition for quick, hands-free health assistance.",
+    desc: "Speak directly to Wellness using built-in speech recognition for quick, hands-free health assistance.",
     icon: <Mic size={40} className="text-[rgb(63,181,244)]" />,
   },
   {
@@ -72,7 +72,7 @@ export default function FeatureSection() {
             : "opacity-0 translate-y-10"
         }`}
       >
-        How Med Genie Helps You
+        How Wellness Helps You
       </h2>
 
       <div data-aos="fade-up" className="w-full flex flex-col gap-[80px]">

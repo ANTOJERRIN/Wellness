@@ -43,7 +43,7 @@ export default function AboutPage() {
                             </div>
                         </div>
                         <CardTitle className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                            Med Genie
+                            Wellness
                         </CardTitle>
                         <CardDescription className="text-xl text-muted-foreground mt-2 max-w-2xl mx-auto">
                             Your intelligent AI health companion, making healthcare information accessible to everyone
@@ -76,7 +76,7 @@ export default function AboutPage() {
                     <CardContent className="space-y-4 text-base leading-relaxed">
                         <p>
                             Healthcare information should be accessible to everyone, but navigating complex medical resources can be overwhelming. 
-                            <span className="font-semibold text-primary"> Med Genie bridges this gap</span> by providing instant, AI-powered health guidance 
+                            <span className="font-semibold text-primary"> Wellness bridges this gap</span> by providing instant, AI-powered health guidance 
                             in a conversational, easy-to-understand format.
                         </p>
                         <div className="bg-muted/30 p-4 rounded-lg border">
@@ -246,12 +246,12 @@ export default function AboutPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-base leading-relaxed">
-                            Med Genie is proudly part of <strong>GirlScript Summer of Code 2025 (GSSoC'25)</strong>, 
+                            Wellness is proudly part of <strong>GirlScript Summer of Code 2025 (GSSoC'25)</strong>, 
                             fostering open-source contribution and collaborative development in the healthcare technology space.
                         </p>
                         <div className="flex flex-wrap gap-4">
                             <Button variant="outline" asChild>
-                                <Link href="https://github.com/aayushraj1010/med-genie" target="_blank" rel="noopener noreferrer">
+                                <Link href="https://github.com/aayushraj1010/wellness" target="_blank" rel="noopener noreferrer">
                                     <Github className="h-4 w-4 mr-2" />
                                     View on GitHub
                                     <ExternalLink className="h-3 w-3 ml-1" />
@@ -282,7 +282,7 @@ export default function AboutPage() {
                             <div className="space-y-2">
                                 <h3 className="font-semibold text-destructive">Important Medical Disclaimer</h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Med Genie provides general health information for educational purposes only and should not be considered as 
+                                    Wellness provides general health information for educational purposes only and should not be considered as 
                                     professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals 
                                     for medical concerns. In case of emergencies, contact your local emergency services immediately.
                                 </p>

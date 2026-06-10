@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_text_field.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -74,7 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             const SizedBox(height: 16),
                             const Text(
-                              "Med Genie",
+                              "Wellness",
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -124,12 +126,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
                             // Name field (register only)
                             if (!isLogin) ...[
-                              TextFormField(
+                              AppTextField(
                                 controller: _nameCtrl,
-                                decoration: const InputDecoration(
-                                  labelText: "Full Name",
-                                  prefixIcon: Icon(Icons.person_outline),
-                                ),
+                                labelText: "Full Name",
+                                prefixIcon: const Icon(Icons.person_outline),
                                 validator: (v) =>
                                     (v == null || v.trim().length < 2)
                                         ? "Enter at least 2 characters"
@@ -139,13 +139,11 @@ class _AuthScreenState extends State<AuthScreen> {
                             ],
 
                             // Email
-                            TextFormField(
+                            AppTextField(
                               controller: _emailCtrl,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
-                                labelText: "Email Address",
-                                prefixIcon: Icon(Icons.email_outlined),
-                              ),
+                              labelText: "Email Address",
+                              prefixIcon: const Icon(Icons.email_outlined),
                               validator: (v) =>
                                   (v == null || !v.contains('@'))
                                       ? "Enter a valid email"
@@ -154,19 +152,17 @@ class _AuthScreenState extends State<AuthScreen> {
                             const SizedBox(height: 16),
 
                             // Password
-                            TextFormField(
+                            AppTextField(
                               controller: _passwordCtrl,
                               obscureText: _obscurePassword,
-                              decoration: InputDecoration(
-                                labelText: "Password",
-                                prefixIcon: const Icon(Icons.lock_outline),
-                                suffixIcon: IconButton(
-                                  icon: Icon(_obscurePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined),
-                                  onPressed: () => setState(
-                                      () => _obscurePassword = !_obscurePassword),
-                                ),
+                              labelText: "Password",
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(_obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined),
+                                onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword),
                               ),
                               validator: (v) =>
                                   (v == null || v.length < 8)
@@ -176,54 +172,29 @@ class _AuthScreenState extends State<AuthScreen> {
                             const SizedBox(height: 28),
 
                             // Submit button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: authState.isLoading
-                                    ? null
-                                    : () {
-                                        if (_formKey.currentState!.validate()) {
-                                          if (isLogin) {
-                                            ref
-                                                .read(authProvider.notifier)
-                                                .login(_emailCtrl.text.trim(),
-                                                    _passwordCtrl.text);
-                                          } else {
-                                            ref
-                                                .read(authProvider.notifier)
-                                                .register(
-                                                  _nameCtrl.text.trim(),
-                                                  _emailCtrl.text.trim(),
-                                                  _passwordCtrl.text,
-                                                );
-                                          }
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF10B981),
-                                  foregroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: authState.isLoading
-                                    ? const SizedBox(
-                                        height: 22,
-                                        width: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: Colors.black,
-                                        ),
-                                      )
-                                    : Text(
-                                        isLogin ? "Sign In" : "Create Account",
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              ),
+                            AppButton(
+                              text: isLogin ? "Sign In" : "Create Account",
+                              isLoading: authState.isLoading,
+                              backgroundColor: const Color(0xFF10B981),
+                              textColor: Colors.black,
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  if (isLogin) {
+                                    ref
+                                        .read(authProvider.notifier)
+                                        .login(_emailCtrl.text.trim(),
+                                            _passwordCtrl.text);
+                                  } else {
+                                    ref
+                                        .read(authProvider.notifier)
+                                        .register(
+                                          _nameCtrl.text.trim(),
+                                          _emailCtrl.text.trim(),
+                                          _passwordCtrl.text,
+                                        );
+                                  }
+                                }
+                              },
                             ),
                             const SizedBox(height: 16),
 

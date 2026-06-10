@@ -14,7 +14,7 @@ export function TopContributors() {
     const [contributors, setContributors] = useState<Contributor[]>([]);
 
     useEffect(() => {
-        fetch('https://api.github.com/repos/aayushraj1010/med-genie/contributors')
+        fetch('https://api.github.com/repos/aayushraj1010/wellness/contributors')
             .then(res => res.json())
             .then((data: any[]) => {
                 const sorted = data

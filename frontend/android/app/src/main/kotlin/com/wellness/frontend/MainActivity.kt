@@ -1,4 +1,4 @@
-package com.medgenie.frontend
+package com.wellness.frontend
 
 import io.flutter.embedding.android.FlutterActivity
 
