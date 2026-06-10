@@ -119,7 +119,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withOpacity(0.15),
+                color: const Color(0xFF10B981).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text("🩺", style: TextStyle(fontSize: 18)),
@@ -194,7 +194,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.redAccent.withOpacity(0.08),
+            color: Colors.redAccent.withValues(alpha: 0.08),
             child: Row(
               children: [
                 const Icon(Icons.warning_amber_rounded,
@@ -249,7 +249,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   : Colors.white,
               border: Border(
                 top: BorderSide(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -306,7 +306,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         shape: BoxShape.circle,
                         color: _isListening
                             ? Colors.redAccent
-                            : Colors.grey.withOpacity(0.2),
+                            : Colors.grey.withValues(alpha: 0.2),
                       ),
                       child: IconButton(
                         icon: Icon(
@@ -361,7 +361,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           border: isUser
               ? null
-              : Border.all(color: Colors.white.withOpacity(0.06)),
+              : Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,3 +428,4 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 }
+

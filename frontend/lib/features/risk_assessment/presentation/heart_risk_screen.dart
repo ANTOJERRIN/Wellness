@@ -120,10 +120,10 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF1E293B),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+              border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     blurRadius: 30,
                     spreadRadius: 5),
               ],
@@ -151,9 +151,9 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: color.withOpacity(0.5)),
+                    border: Border.all(color: color.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -231,9 +231,9 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.08),
+              color: Colors.orange.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
             ),
             child: const Text(
               "⚠️ This prediction is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.",
@@ -270,10 +270,10 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.pinkAccent.withOpacity(0.08),
+              color: Colors.pinkAccent.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: Colors.pinkAccent.withOpacity(0.3)),
+                  color: Colors.pinkAccent.withValues(alpha: 0.3)),
             ),
             child: const Row(
               children: [
@@ -411,7 +411,7 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<int>(
-        value: value,
+        initialValue: value,
         decoration: InputDecoration(labelText: label),
         dropdownColor: const Color(0xFF1E293B),
         items: options.entries
@@ -425,3 +425,4 @@ class _HeartRiskScreenState extends ConsumerState<HeartRiskScreen> {
     );
   }
 }
+

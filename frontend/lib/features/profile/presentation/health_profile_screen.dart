@@ -121,10 +121,10 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.1),
+                    color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: const Color(0xFF3B82F6).withOpacity(0.3)),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
                   ),
                   child: const Row(
                     children: [
@@ -237,3 +237,4 @@ class _HealthProfileScreenState extends ConsumerState<HealthProfileScreen> {
     );
   }
 }
+

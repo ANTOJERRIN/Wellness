@@ -176,7 +176,7 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
                         const SizedBox(width: 12),
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: _gender,
+                            initialValue: _gender,
                             dropdownColor: const Color(0xFF1E293B),
                             decoration: const InputDecoration(
                               labelText: "Gender",
@@ -202,7 +202,7 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
                     const SizedBox(height: 16),
 
                     DropdownButtonFormField<String>(
-                      value: _severity,
+                      initialValue: _severity,
                       dropdownColor: const Color(0xFF1E293B),
                       decoration: const InputDecoration(
                         labelText: "Severity",
@@ -273,9 +273,9 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.08),
+                color: Colors.orange.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +326,7 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: urgencyColor.withOpacity(0.3)),
+        border: Border.all(color: urgencyColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,10 +349,10 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: urgencyColor.withOpacity(0.15),
+                  color: urgencyColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: urgencyColor.withOpacity(0.5)),
+                      color: urgencyColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   urgency.toUpperCase(),
@@ -535,3 +535,4 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
     );
   }
 }
+

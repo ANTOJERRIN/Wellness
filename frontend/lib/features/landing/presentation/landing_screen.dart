@@ -75,13 +75,13 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       margin: const EdgeInsets.only(top: 20, left: 16, right: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
+        color: Colors.black.withValues(alpha: 0.2),
         border: Border.all(
-            color: const Color(0xFF3B82F6).withOpacity(0.25)),
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.25)),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withOpacity(0.06),
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.06),
             blurRadius: 20,
           )
         ],
@@ -189,10 +189,10 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                      color: const Color(0xFF10B981).withOpacity(0.4)),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                 ),
                 child: const Text(
                   "🤖 AI-Powered Health Assistant",
@@ -394,12 +394,12 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          color: Colors.white.withValues(alpha: 0.03),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF3B82F6).withOpacity(0.05),
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.05),
               blurRadius: 20,
             )
           ],
@@ -410,7 +410,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withOpacity(0.12),
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon,
@@ -486,7 +486,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-      color: Colors.black.withOpacity(0.12),
+      color: Colors.black.withValues(alpha: 0.12),
       child: Column(
         children: [
           const Text(
@@ -518,9 +518,9 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               return Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.02),
+                  color: Colors.white.withValues(alpha: 0.02),
                   border:
-                      Border.all(color: Colors.white.withOpacity(0.08)),
+                      Border.all(color: Colors.white.withValues(alpha: 0.08)),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -530,7 +530,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                       margin: const EdgeInsets.only(top: 2),
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3B82F6).withOpacity(0.15),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.check,
@@ -633,11 +633,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                   decoration: BoxDecoration(
                     color: expanded
                         ? const Color(0xFF1E293B)
-                        : Colors.white.withOpacity(0.03),
+                        : Colors.white.withValues(alpha: 0.03),
                     border: Border.all(
                       color: expanded
-                          ? const Color(0xFF3B82F6).withOpacity(0.4)
-                          : Colors.white.withOpacity(0.08),
+                          ? const Color(0xFF3B82F6).withValues(alpha: 0.4)
+                          : Colors.white.withValues(alpha: 0.08),
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -712,9 +712,9 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             child: Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.25)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
               ),
               child: Form(
                 key: _newsletterFormKey,
@@ -803,7 +803,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
         Text(
           "Subscribe for the latest health tips and MedGenie AI updates.",
           style: TextStyle(
-              color: Colors.white.withOpacity(0.8), fontSize: 14),
+              color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
         ),
       ],
     );
@@ -815,10 +815,10 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF10B981).withOpacity(0.3),
+          color: const Color(0xFF10B981).withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: const Color(0xFF10B981).withOpacity(0.6)),
+              color: const Color(0xFF10B981).withValues(alpha: 0.6)),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -850,7 +850,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             decoration: InputDecoration(
               hintText: "Enter your email",
               hintStyle: const TextStyle(color: Colors.black45),
-              fillColor: Colors.white.withOpacity(0.95),
+              fillColor: Colors.white.withValues(alpha: 0.95),
               filled: true,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -899,3 +899,4 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
     );
   }
 }
+

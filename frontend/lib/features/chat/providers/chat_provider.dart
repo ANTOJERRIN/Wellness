@@ -131,3 +131,4 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
 
 final chatProvider =
     NotifierProvider<ChatNotifier, List<ChatMessage>>(ChatNotifier.new);
+

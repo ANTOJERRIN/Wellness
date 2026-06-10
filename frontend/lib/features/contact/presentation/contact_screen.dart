@@ -71,7 +71,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withOpacity(0.1),
+              color: const Color(0xFF10B981).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.check_circle,
@@ -191,3 +191,4 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     );
   }
 }
+

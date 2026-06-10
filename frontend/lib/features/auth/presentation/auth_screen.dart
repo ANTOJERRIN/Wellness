@@ -50,7 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: const Color(0xFF10B981).withOpacity(0.3),
+                        color: const Color(0xFF10B981).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Padding(
@@ -64,7 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withOpacity(0.1),
+                                color: const Color(0xFF10B981).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: const Text(
@@ -98,10 +98,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
+                                  color: Colors.red.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                      color: Colors.red.withOpacity(0.5)),
+                                      color: Colors.red.withValues(alpha: 0.5)),
                                 ),
                                 child: Row(
                                   children: [
@@ -256,3 +256,4 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 }
+
