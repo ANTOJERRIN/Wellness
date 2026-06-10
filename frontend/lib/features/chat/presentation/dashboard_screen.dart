@@ -7,7 +7,6 @@ import '../../profile/presentation/health_profile_screen.dart';
 import '../../risk/presentation/heart_risk_screen.dart';
 import '../../specialist/presentation/specialist_screen.dart';
 import '../../contact/presentation/contact_screen.dart';
-import '../../../core/network/dio_client.dart';
 import '../../../app/theme.dart';
 import '../../../core/widgets/medical_disclaimer_banner.dart';
 import '../../../core/constants/app_text.dart';
