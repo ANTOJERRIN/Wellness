@@ -3,13 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
+db_url = settings.DATABASE_URL
+if db_url.startswith("file:"):
+    db_url = db_url.replace("file:", "sqlite:///", 1)
+
 # If sqlite, use connect_args to avoid thread sharing issues
-if settings.DATABASE_URL.startswith("sqlite"):
+if db_url.startswith("sqlite"):
     engine = create_engine(
-        settings.DATABASE_URL, connect_args={"check_same_thread": False}
+        db_url, connect_args={"check_same_thread": False}
     )
 else:
-    engine = create_engine(settings.DATABASE_URL)
+    engine = create_engine(db_url)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

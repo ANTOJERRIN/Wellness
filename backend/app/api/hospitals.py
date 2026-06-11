@@ -99,7 +99,11 @@ async def get_nearby_hospitals(
             )
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(url)
+                response.raise_for_status()
                 data = response.json()
+
+            if "records" not in data:
+                raise ValueError("OGD API response does not contain 'records'")
 
             if not data.get("records"):
                 return {

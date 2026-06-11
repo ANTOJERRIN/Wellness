@@ -87,7 +87,7 @@ class _SpecialistScreenState extends ConsumerState<SpecialistScreen>
     });
     try {
       final res = await ref.read(dioProvider).get(
-          "/hospitals/nearby",
+          "/nearby-hospitals",
           queryParameters: {"state": _stateCtrl.text.trim()});
       setState(() {
         _hospitals =
