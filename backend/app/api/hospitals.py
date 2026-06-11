@@ -89,6 +89,22 @@ async def get_nearby_hospitals(
             detail="State parameter is required."
         )
 
+    # Map common city aliases to states
+    ALIAS_MAP = {
+        "bangalore": "Karnataka",
+        "bengaluru": "Karnataka",
+        "mumbai": "Maharashtra",
+        "pune": "Maharashtra",
+        "chennai": "Tamil Nadu",
+        "kolkata": "West Bengal",
+        "delhi": "Delhi",
+        "new delhi": "Delhi",
+    }
+    
+    state_lower = state_clean.lower()
+    if state_lower in ALIAS_MAP:
+        state_clean = ALIAS_MAP[state_lower]
+
     # Live API path
     if settings.API_SETU_KEY:
         try:
@@ -145,6 +161,14 @@ async def get_nearby_hospitals(
             if state_key in key or key in state_key:
                 hospitals = data
                 break
+
+    if not hospitals:
+        return {
+            "state": state_clean,
+            "hospitals": [],
+            "message": f"No hospital records found for '{state_clean}'.",
+            "note": "Showing curated hospital data. Configure API_SETU_KEY for live results.",
+        }
 
     return {
         "state": state_clean,
