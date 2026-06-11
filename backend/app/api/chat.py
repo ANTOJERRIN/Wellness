@@ -207,7 +207,7 @@ async def send_chat_message(
             ai_answer, follow_up = _local_health_fallback(message_in.content)
             logger.warning("Gemini API key is not configured. Returned local health fallback.")
         else:
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-3.5-flash")
             response = model.generate_content(
                 formatted_prompt,
                 generation_config={"response_mime_type": "application/json"}
