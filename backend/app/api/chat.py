@@ -16,10 +16,35 @@ logger = logging.getLogger("chat_api")
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
+def _local_health_fallback(question: str) -> tuple[str, str]:
+    """Safe demo fallback when Gemini is unavailable."""
+    lower_question = question.lower()
+    emergency_terms = [
+        "chest pain",
+        "shortness of breath",
+        "can't breathe",
+        "cannot breathe",
+        "unconscious",
+        "stroke",
+        "seizure",
+        "severe bleeding",
+    ]
+    if any(term in lower_question for term in emergency_terms):
+        return (
+            "Your symptoms may need urgent medical attention. Please contact local emergency services or go to the nearest emergency department immediately. I can only provide general information and cannot diagnose you.",
+            "Are you currently experiencing severe pain, breathing difficulty, fainting, or any rapidly worsening symptoms?",
+        )
+
+    return (
+        "I am having trouble connecting to the AI service right now, but here is general safety guidance: monitor your symptoms, rest, stay hydrated, avoid self-medicating beyond label instructions, and consult a qualified healthcare professional if symptoms persist, worsen, or feel unusual for you. This is general information, not a diagnosis.",
+        "Could you share your age, how long this has been happening, and whether you have fever, severe pain, breathing difficulty, dizziness, or any existing medical conditions?",
+    )
+
+
 # Initialize Gemini AI
-if settings.GOOGLE_AI_API_KEY:
+if settings.gemini_api_key:
     try:
-        genai.configure(api_key=settings.GOOGLE_AI_API_KEY)
+        genai.configure(api_key=settings.gemini_api_key)
         logger.info("Gemini AI API client successfully configured.")
     except Exception as e:
         logger.error(f"Error configuring Gemini AI Client: {e}")
@@ -123,12 +148,6 @@ async def send_chat_message(
     current_user: User = Depends(get_current_user),
     db: DBSession = Depends(get_db)
 ):
-    if not settings.GOOGLE_AI_API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Google Gemini API key not configured on backend."
-        )
-
     try:
         # Verify session belongs to user
         chat_session = db.query(ChatSession).filter(
@@ -184,36 +203,37 @@ async def send_chat_message(
     )
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(
-            formatted_prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
-        
-        # Safely check if response contains content
-        if (
-            not response.candidates 
-            or not response.candidates[0].content 
-            or not response.candidates[0].content.parts
-        ):
-            logger.error("Gemini API returned an empty/blocked response.")
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="The AI assistant could not generate a response. The content may have been blocked or the API was unable to process it."
+        if not settings.gemini_api_key:
+            ai_answer, follow_up = _local_health_fallback(message_in.content)
+            logger.warning("Gemini API key is not configured. Returned local health fallback.")
+        else:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(
+                formatted_prompt,
+                generation_config={"response_mime_type": "application/json"}
             )
-            
-        response_text = response.text
-        
-        # Parse JSON output safely
-        try:
-            response_data = json.loads(response_text)
-            ai_answer = response_data.get("answer", "I need more information to help you effectively.")
-            follow_up = response_data.get("followUpQuestion", "")
-        except json.JSONDecodeError as je:
-            logger.error(f"Failed to parse JSON from Gemini response: {response_text}. Error: {je}")
-            # Resilient fallback if LLM produces invalid JSON
-            ai_answer = response_text
-            follow_up = ""
+
+            # Safely check if response contains content
+            if (
+                not response.candidates
+                or not response.candidates[0].content
+                or not response.candidates[0].content.parts
+            ):
+                logger.error("Gemini API returned an empty/blocked response.")
+                ai_answer, follow_up = _local_health_fallback(message_in.content)
+            else:
+                response_text = response.text
+
+                # Parse JSON output safely
+                try:
+                    response_data = json.loads(response_text)
+                    ai_answer = response_data.get("answer", "I need more information to help you effectively.")
+                    follow_up = response_data.get("followUpQuestion", "")
+                except json.JSONDecodeError as je:
+                    logger.error(f"Failed to parse JSON from Gemini response: {response_text}. Error: {je}")
+                    # Resilient fallback if LLM produces invalid JSON
+                    ai_answer = response_text
+                    follow_up = ""
         
         # Save AI response
         ai_msg = ChatMessage(
@@ -234,16 +254,34 @@ async def send_chat_message(
             "answer": ai_answer,
             "followUpQuestion": follow_up
         }
-    except HTTPException:
-        db.rollback()
-        raise
     except Exception as e:
         db.rollback()
         logger.error(f"Gemini API or database error during chat response generation: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to query Gemini AI or save response: {str(e)}"
-        )
+        ai_answer, follow_up = _local_health_fallback(message_in.content)
+        try:
+            ai_msg = ChatMessage(
+                sessionId=chat_session.id,
+                content=ai_answer,
+                sender="ai",
+                timestamp=datetime.utcnow(),
+                isFollowUp=bool(follow_up),
+                messageMetadata=json.dumps({"followUpQuestion": follow_up}) if follow_up else None
+            )
+            db.add(ai_msg)
+            chat_session.updatedAt = datetime.utcnow()
+            db.commit()
+            return {
+                "answer": ai_answer,
+                "followUpQuestion": follow_up,
+                "source": "local_fallback",
+            }
+        except SQLAlchemyError as db_error:
+            db.rollback()
+            logger.error(f"Failed to save fallback chat response: {db_error}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save chat response."
+            )
 
 
 @router.get("/sessions/{session_id}/messages", response_model=List[ChatMessageResponse])
@@ -307,5 +345,4 @@ async def delete_chat_session(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete chat session from database."
         )
-
 

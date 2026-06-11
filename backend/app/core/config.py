@@ -13,14 +13,21 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./dev.db"
     
-    # Gemini AI
+    # Gemini AI. GOOGLE_API_KEY was used by the legacy Next.js app, while
+    # GOOGLE_AI_API_KEY is used by the FastAPI migration.
     GOOGLE_AI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
 
     # OGD Hospital API (data.gov.in)
     API_SETU_KEY: str = ""
 
+    @property
+    def gemini_api_key(self) -> str:
+        return self.GOOGLE_AI_API_KEY or self.GOOGLE_API_KEY or self.GEMINI_API_KEY
+
     class Config:
-        env_file = ".env"
+        env_file = (".env", "backend/.env", "../.env")
         case_sensitive = True
         extra = "ignore"  # Allow extra env variables without failing validation
 
