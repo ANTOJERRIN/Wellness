@@ -210,7 +210,8 @@ async def send_chat_message(
             model = genai.GenerativeModel("gemini-3.5-flash")
             response = model.generate_content(
                 formatted_prompt,
-                generation_config={"response_mime_type": "application/json"}
+                generation_config={"response_mime_type": "application/json"},
+                request_options={"timeout": 8.0}
             )
 
             # Safely check if response contains content
