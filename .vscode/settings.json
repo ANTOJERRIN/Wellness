@@ -1,4 +1,5 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
-    "cmake.sourceDirectory": "D:/Wellness/frontend/linux"
+    "cmake.sourceDirectory": "D:/Wellness/frontend/linux",
+    "python.terminal.useEnvFile": true
 }
