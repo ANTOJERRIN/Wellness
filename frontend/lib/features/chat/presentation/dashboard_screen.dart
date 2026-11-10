@@ -11,6 +11,7 @@ import '../../../app/theme.dart';
 import '../../../core/widgets/medical_disclaimer_banner.dart';
 import '../../../core/constants/app_text.dart';
 import 'chat_history_drawer.dart';
+import '../../auth/presentation/auth_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -30,6 +31,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted || !ref.read(authProvider).isAuthenticated) return;
       ref.read(chatProvider.notifier).startNewSession();
       _initSpeech();
     });
@@ -100,6 +102,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!ref.watch(authProvider).isAuthenticated) return const AuthScreen();
     final chatMessages = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;

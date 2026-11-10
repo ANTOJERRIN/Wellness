@@ -476,6 +476,95 @@ class TestWellnessBackend(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         return response.json()
 
+    def _care_accounts(self):
+        password = get_password_hash('strongpassword123')
+        accounts = {}
+        for name, role in [('patient', 'user'), ('doctor', 'doctor'), ('stranger', 'user'), ('otherdoctor', 'doctor'), ('pending', 'doctor_pending')]:
+            row = User(name=name, email=f'{name}@example.com', password=password, confirmpassword=password, role=role)
+            self.db.add(row)
+            self.db.commit()
+            tokens = self.client.post('/api/auth/login', json={'email': row.email, 'password': 'strongpassword123'}).json()
+            accounts[name] = (row.id, {'Authorization': f"Bearer {tokens['access_token']}"})
+        return accounts
+
+    def test_doctor_signup_cannot_self_approve(self):
+        response = self.client.post('/api/auth/register', json={'name': 'Doctor Applicant', 'email': 'applicant@example.com', 'password': 'strongpassword123', 'accountType': 'doctor', 'role': 'doctor'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['role'], 'doctor_pending')
+        response = self.client.post('/api/auth/register', json={'name': 'Invalid', 'email': 'invalid@example.com', 'password': 'strongpassword123', 'accountType': 'admin'})
+        self.assertEqual(response.status_code, 422)
+
+    def test_patient_doctor_consultation_workflow(self):
+        a = self._care_accounts()
+        patient, doctor = a['patient'][1], a['doctor'][1]
+        response = self.client.post('/api/care/consultations', headers=patient, json={'doctorId': a['doctor'][0], 'reason': 'Discuss my general wellness routine'})
+        self.assertEqual(response.status_code, 201)
+        cid = response.json()['id']
+        path = f'/api/care/consultations/{cid}'
+        for headers in [patient, doctor]:
+            self.assertEqual(self.client.get('/api/care/dashboard', headers=headers).json()['activeConsultations'], 1)
+        self.assertEqual(self.client.patch(path, headers=doctor, json={'status': 'in_progress'}).status_code, 200)
+        self.assertEqual(self.client.post(path+'/messages', headers=patient, json={'content': 'Hello doctor'}).status_code, 201)
+        self.assertEqual(self.client.post(path+'/messages', headers=doctor, json={'content': 'Hello, how can I help?'}).status_code, 201)
+        messages = self.client.get(path+'/messages', headers=patient).json()
+        self.assertEqual(len(messages), 2)
+        self.assertTrue(messages[0]['isOwn'])
+        self.assertFalse(messages[1]['isOwn'])
+        self.assertEqual(self.client.patch(path, headers=doctor, json={'status': 'closed'}).status_code, 200)
+        self.assertEqual(self.client.post(path+'/messages', headers=patient, json={'content': 'More'}).status_code, 409)
+        self.assertEqual(self.client.patch(path, headers=doctor, json={'status': 'in_progress'}).status_code, 409)
+        self.assertEqual(self.client.get('/api/care/dashboard', headers=patient).json()['activeConsultations'], 0)
+
+    def test_consultations_are_private_and_roles_enforced(self):
+        a = self._care_accounts()
+        response = self.client.post('/api/care/consultations', headers=a['patient'][1], json={'doctorId': a['doctor'][0], 'reason': 'Discuss my general wellness routine'})
+        path = '/api/care/consultations/' + response.json()['id']
+        for name in ['stranger', 'otherdoctor', 'pending']:
+            headers = a[name][1]
+            self.assertEqual(self.client.get('/api/care/dashboard', headers=headers).json()['consultations'], [])
+            self.assertEqual(self.client.get(path+'/messages', headers=headers).status_code, 404)
+            self.assertEqual(self.client.post(path+'/messages', headers=headers, json={'content': 'Forbidden'}).status_code, 404)
+            self.assertEqual(self.client.patch(path, headers=headers, json={'status': 'closed'}).status_code, 404)
+        self.assertEqual(self.client.patch(path, headers=a['patient'][1], json={'status': 'closed'}).status_code, 403)
+        for name in ['doctor', 'pending']:
+            self.assertEqual(self.client.post('/api/care/consultations', headers=a[name][1], json={'doctorId': a['otherdoctor'][0], 'reason': 'Not a patient request'}).status_code, 403)
+        self.assertEqual(self.client.post('/api/care/consultations', headers=a['patient'][1], json={'doctorId': a['pending'][0], 'reason': 'Should not be assigned yet'}).status_code, 400)
+        visible = self.client.get('/api/care/doctors', headers=a['patient'][1]).json()
+        self.assertEqual({row['id'] for row in visible}, {a['doctor'][0], a['otherdoctor'][0]})
+        self.assertEqual(self.client.get(path+'/messages').status_code, 401)
+
+    def test_revoked_doctor_loses_consultation_access(self):
+        a = self._care_accounts()
+        response = self.client.post('/api/care/consultations', headers=a['patient'][1], json={'doctorId': a['doctor'][0], 'reason': 'Discuss my general wellness routine'})
+        path = '/api/care/consultations/' + response.json()['id']
+        self.db.query(User).filter(User.id == a['doctor'][0]).update({'role': 'doctor_pending'})
+        self.db.commit()
+        self.assertEqual(self.client.get('/api/care/dashboard', headers=a['doctor'][1]).json()['consultations'], [])
+        self.assertEqual(self.client.get(path+'/messages', headers=a['doctor'][1]).status_code, 403)
+
+    def test_ai_connection_check_explains_missing_configuration(self):
+        tokens = self._login_tokens()
+        headers = {'Authorization': f"Bearer {tokens['access_token']}"}
+        with patch('app.core.gemini.settings.GOOGLE_AI_API_KEY', ''), patch('app.core.gemini.settings.GOOGLE_API_KEY', ''), patch('app.core.gemini.settings.GEMINI_API_KEY', ''):
+            result = self.client.post('/api/care/ai/check', headers=headers)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json(), {'connected': False, 'reason': 'not_configured'})
+        from app.core.gemini import HealthAnswer
+        with patch('app.api.care.generate_health_answer', return_value=HealthAnswer(answer='Hello')):
+            self.assertTrue(self.client.post('/api/care/ai/check', headers=headers).json()['connected'])
+        self.assertEqual(self.client.get('/api/care/dashboard').status_code, 401)
+
+    def test_provider_errors_are_actionable_without_leaking_details(self):
+        from app.core.gemini import generate_health_answer, GeminiUnavailable
+        from google.genai.errors import APIError
+        with patch('app.core.gemini.settings.GOOGLE_AI_API_KEY', 'test-key'), patch('app.core.gemini.genai.Client') as client:
+            for code, reason in [(401, 'authentication_failed'), (403, 'access_denied'), (404, 'model_unavailable'), (429, 'rate_limited')]:
+                client.return_value.__enter__.return_value.models.generate_content.side_effect = APIError(code, {'message': 'private details'})
+                with self.assertRaises(GeminiUnavailable) as result:
+                    generate_health_answer('test')
+                self.assertEqual(result.exception.reason, reason)
+                self.assertNotIn('private', str(result.exception))
+
     def test_refresh_rotation_rejects_replay(self):
         tokens = self._login_tokens()
         self.client.cookies.clear()
@@ -487,6 +576,103 @@ class TestWellnessBackend(unittest.TestCase):
         self.assertEqual(replay.status_code, 401)
         old_access = self.client.get("/api/user/profile", headers={"Authorization": f"Bearer {tokens['access_token']}"})
         self.assertEqual(old_access.status_code, 401)
+
+    def test_refresh_tokens_are_stored_as_digests(self):
+        import hashlib
+        from app.models.db_models import Session as UserSession
+        tokens = self._login_tokens()
+        session = self.db.query(UserSession).one()
+        self.assertEqual(session.refreshToken, hashlib.sha256(tokens['refresh_token'].encode()).hexdigest())
+        self.client.cookies.clear()
+        rotated = self.client.post('/api/auth/refresh', headers={'Authorization': f"Bearer {tokens['refresh_token']}"})
+        self.assertEqual(rotated.status_code, 200)
+        self.db.expire_all()
+        self.assertEqual(session.refreshToken, hashlib.sha256(rotated.json()['refresh_token'].encode()).hexdigest())
+
+    def test_concurrent_refresh_has_exactly_one_winner(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from app.core.security import create_access_token
+        tokens = self._login_tokens()
+        barrier = Barrier(2)
+
+        def synchronized_token(user_id):
+            # Both workers have read the old session before either updates it.
+            barrier.wait(timeout=10)
+            return create_access_token(user_id)
+
+        def refresh_once(_):
+            with TestClient(app) as client:
+                return client.post('/api/auth/refresh', headers={'Authorization': f"Bearer {tokens['refresh_token']}"})
+
+        with patch('app.api.auth.create_access_token', side_effect=synchronized_token):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(refresh_once, range(2)))
+        self.assertEqual(sorted(result.status_code for result in results), [200, 401])
+        winner = next(result.json() for result in results if result.status_code == 200)
+        self.assertEqual(self.client.get('/api/user/profile', headers={'Authorization': f"Bearer {winner['access_token']}"}).status_code, 200)
+
+    def test_auth_rate_limit_and_expiry(self):
+        from app.models.db_models import RateLimit
+        with patch.dict('app.core.rate_limit.AUTH_LIMITS', {'check-email': (2, 60)}):
+            for _ in range(2):
+                self.assertEqual(self.client.get('/api/auth/check-email', params={'email': 'nobody@example.com'}).status_code, 200)
+            # GET and POST share the same bucket; spoofed proxy headers do not bypass it.
+            denied = self.client.post('/api/auth/check-email', json={'email': 'nobody@example.com'}, headers={'X-Forwarded-For': '1.2.3.4'})
+            self.assertEqual(denied.status_code, 429)
+            self.assertGreater(int(denied.headers['Retry-After']), 0)
+            row = self.db.query(RateLimit).one()
+            self.assertNotIn('testclient', row.key)
+            row.resetTime = datetime.utcnow() - timedelta(seconds=1)
+            self.db.commit()
+            self.assertEqual(self.client.get('/api/auth/check-email', params={'email': 'nobody@example.com'}).status_code, 200)
+
+    def test_rate_limit_is_atomic_across_workers(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from fastapi import HTTPException
+        from app.core.rate_limit import consume_limit
+        barrier = Barrier(8)
+
+        def attempt(_):
+            with TestingSessionLocal() as db:
+                barrier.wait(timeout=10)
+                try:
+                    consume_limit(db, 'concurrency-test', 3, 60)
+                    return 200
+                except HTTPException as error:
+                    return error.status_code
+
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            statuses = list(pool.map(attempt, range(8)))
+        self.assertEqual(statuses.count(200), 3)
+        self.assertEqual(statuses.count(429), 5)
+
+    def test_cross_user_chat_access_is_rejected(self):
+        tokens = self._login_tokens()
+        owner_headers = {'Authorization': f"Bearer {tokens['access_token']}"}
+        session_id = self.client.post('/api/chat/sessions', json={'title': 'Private'}, headers=owner_headers).json()['sessionId']
+        self.client.post('/api/auth/register', json={'name': 'Other', 'email': 'other@example.com', 'password': 'strongpassword123'})
+        other = self.client.post('/api/auth/login', json={'email': 'other@example.com', 'password': 'strongpassword123'}).json()
+        headers = {'Authorization': f"Bearer {other['access_token']}"}
+        path = f'/api/chat/sessions/{session_id}'
+        self.assertEqual(self.client.get(path + '/messages', headers=headers).status_code, 404)
+        with patch('app.api.chat.generate_health_answer') as provider:
+            self.assertEqual(self.client.post(path + '/messages', json={'content': 'Read private data'}, headers=headers).status_code, 404)
+            provider.assert_not_called()
+        self.assertEqual(self.client.delete(path, headers=headers).status_code, 404)
+        self.assertEqual(self.client.get('/api/chat/sessions', headers=headers).json(), [])
+        self.assertEqual(self.client.get(path + '/messages', headers=owner_headers).status_code, 200)
+
+    def test_access_token_must_match_session_owner(self):
+        from app.models.db_models import Session as UserSession
+        tokens = self._login_tokens()
+        other = User(name='Other', email='other@example.com', password='unused', confirmpassword='unused')
+        self.db.add(other)
+        self.db.commit()
+        self.db.query(UserSession).update({'userId': other.id})
+        self.db.commit()
+        self.assertEqual(self.client.get('/api/user/profile', headers={'Authorization': f"Bearer {tokens['access_token']}"}).status_code, 401)
 
     def test_repeated_logins_create_distinct_sessions(self):
         first = self._login_tokens()

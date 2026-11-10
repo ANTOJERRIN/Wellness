@@ -164,3 +164,25 @@ class NewsletterSubscription(Base):
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     active = Column(Boolean, default=True)
+
+
+class Consultation(Base):
+    __tablename__ = "consultations"
+
+    id = Column(String(100), primary_key=True)
+    patientId = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    doctorId = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    reason = Column(Text, nullable=False)
+    status = Column(String(20), nullable=False, default="requested")
+    createdAt = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updatedAt = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ConsultationMessage(Base):
+    __tablename__ = "consultation_messages"
+
+    id = Column(String(100), primary_key=True)
+    consultationId = Column(String(100), ForeignKey("consultations.id"), nullable=False, index=True)
+    senderId = Column(Integer, ForeignKey("users.id"), nullable=False)
+    content = Column(Text, nullable=False)
+    createdAt = Column(DateTime, default=datetime.utcnow, nullable=False)

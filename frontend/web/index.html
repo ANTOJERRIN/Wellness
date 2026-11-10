@@ -18,21 +18,38 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Wellness health assistant">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="frontend">
+  <meta name="apple-mobile-web-app-title" content="Wellness">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>frontend</title>
+  <title>Wellness</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    body { margin: 0; background: #0b1220; }
+    #startup { position: fixed; inset: 0; z-index: 9999; display: grid;
+      place-content: center; text-align: center; padding: 24px; color: #f1f5f9;
+      background: #0b1220; font: 16px/1.5 system-ui, sans-serif; }
+    #startup h1 { font-size: 28px; margin-bottom: 8px; }
+    #startup p { max-width: 440px; color: #cbd5e1; }
+    #startup button { padding: 12px 24px; border: 0; border-radius: 8px;
+      background: #34d399; color: #0b1220; font: inherit; cursor: pointer; }
+    #startup button[hidden] { display: none; }
+  </style>
 </head>
 <body>
+  <div id="startup" role="status" aria-live="polite">
+    <h1>Wellness</h1>
+    <p id="startup-message">Loading your health assistant…</p>
+    <button id="startup-retry" hidden onclick="window.location.reload()">Try again</button>
+  </div>
+  <noscript>This app requires JavaScript. Please enable it to open Wellness.</noscript>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

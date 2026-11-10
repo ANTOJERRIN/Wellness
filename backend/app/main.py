@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api import auth, profile, chat, risk, newsletter, contact, specialist, hospitals
+from app.api import auth, profile, chat, risk, newsletter, contact, specialist, hospitals, care
 from sqlalchemy import text
 from fastapi.responses import JSONResponse
 
@@ -47,6 +47,7 @@ app.include_router(newsletter.router, prefix=settings.API_V1_STR)
 app.include_router(contact.router, prefix=settings.API_V1_STR)
 app.include_router(specialist.router, prefix=settings.API_V1_STR)
 app.include_router(hospitals.router, prefix=settings.API_V1_STR)
+app.include_router(care.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

@@ -58,6 +58,7 @@ async def get_current_user(
     # Check if session is active in database
     session = db.query(UserSession).filter(
         UserSession.token == token,
+        UserSession.userId == user_id_int,
         UserSession.isActive == True,
         UserSession.expiresAt > datetime.utcnow()
     ).first()

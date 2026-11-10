@@ -13,12 +13,17 @@ class AuthApi {
     required String name,
     required String email,
     required String password,
+    String accountType = 'patient',
   }) async {
-    final res = await _dio.post('/auth/register', data: {
-      'name': name,
-      'email': email,
-      'password': password,
-    });
+    final res = await _dio.post(
+      '/auth/register',
+      data: {
+        'name': name,
+        'email': email,
+        'password': password,
+        'accountType': accountType,
+      },
+    );
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 
@@ -26,10 +31,10 @@ class AuthApi {
     required String email,
     required String password,
   }) async {
-    final res = await _dio.post('/auth/login', data: {
-      'email': email,
-      'password': password,
-    });
+    final res = await _dio.post(
+      '/auth/login',
+      data: {'email': email, 'password': password},
+    );
     return TokenModel.fromJson(res.data as Map<String, dynamic>);
   }
 
@@ -38,7 +43,10 @@ class AuthApi {
   }
 
   Future<String> forgotPassword(String email) async {
-    final response = await _dio.post('/auth/forgot-password', data: {'email': email});
+    final response = await _dio.post(
+      '/auth/forgot-password',
+      data: {'email': email},
+    );
     return response.data['message'] as String;
   }
 
@@ -48,16 +56,22 @@ class AuthApi {
     required String password,
     required String confirmation,
   }) async {
-    await _dio.post('/auth/reset-password', data: {
-      'email': email,
-      'token': token,
-      'newPassword': password,
-      'confirmPassword': confirmation,
-    });
+    await _dio.post(
+      '/auth/reset-password',
+      data: {
+        'email': email,
+        'token': token,
+        'newPassword': password,
+        'confirmPassword': confirmation,
+      },
+    );
   }
 
   Future<bool> checkEmail(String email) async {
-    final res = await _dio.get('/auth/check-email', queryParameters: {'email': email});
+    final res = await _dio.get(
+      '/auth/check-email',
+      queryParameters: {'email': email},
+    );
     return res.data['exists'] as bool? ?? false;
   }
 }

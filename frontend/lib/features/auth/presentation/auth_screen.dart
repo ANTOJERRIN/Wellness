@@ -19,6 +19,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   bool isLogin = true;
   bool _obscurePassword = true;
+  String _accountType = 'patient';
 
   @override
   void dispose() {
@@ -33,7 +34,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.isAuthenticated) {
         if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       }
     });
@@ -142,6 +143,34 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
                         // Name field (register only)
                         if (!isLogin) ...[
+                          SegmentedButton<String>(
+                            segments: const [
+                              ButtonSegment(
+                                value: 'patient',
+                                label: Text('Patient'),
+                                icon: Icon(Icons.person_outline),
+                              ),
+                              ButtonSegment(
+                                value: 'doctor',
+                                label: Text('Doctor'),
+                                icon: Icon(Icons.medical_services_outlined),
+                              ),
+                            ],
+                            selected: {_accountType},
+                            onSelectionChanged: authState.isLoading
+                                ? null
+                                : (value) => setState(
+                                    () => _accountType = value.first,
+                                  ),
+                          ),
+                          if (_accountType == 'doctor')
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                'Doctor access requires approval before you can receive patient requests.',
+                              ),
+                            ),
+                          const SizedBox(height: 16),
                           AppTextField(
                             controller: _nameCtrl,
                             labelText: "Full Name",
@@ -209,6 +238,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       _nameCtrl.text.trim(),
                                       _emailCtrl.text.trim(),
                                       _passwordCtrl.text,
+                                      accountType: _accountType,
                                     );
                               }
                             }
@@ -216,11 +246,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (isLogin) TextButton(
-                          onPressed: authState.isLoading ? null : () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => PasswordRecoveryScreen(email: _emailCtrl.text.trim()))),
-                          child: const Text('Forgot password?'),
-                        ),
+                        if (isLogin)
+                          TextButton(
+                            onPressed: authState.isLoading
+                                ? null
+                                : () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => PasswordRecoveryScreen(
+                                        email: _emailCtrl.text.trim(),
+                                      ),
+                                    ),
+                                  ),
+                            child: const Text('Forgot password?'),
+                          ),
 
                         // Toggle login/register
                         TextButton(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/providers/auth_provider.dart';
-import '../features/chat/presentation/dashboard_screen.dart';
+import '../features/care/presentation/care_dashboard_screen.dart';
 import '../features/landing/presentation/landing_screen.dart';
 import '../core/constants/app_text.dart';
 import 'theme.dart';
@@ -23,7 +23,7 @@ class WellnessApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       onGenerateRoute: AppRouter.generateRoute,
       home: authState.isAuthenticated
-          ? const DashboardScreen()
+          ? const CareDashboardScreen()
           : const LandingScreen(),
     );
   }

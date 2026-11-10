@@ -7,6 +7,7 @@ import '../features/profile/presentation/health_profile_screen.dart';
 import '../features/risk/presentation/heart_risk_screen.dart';
 import '../features/specialist/presentation/specialist_screen.dart';
 import '../features/contact/presentation/contact_screen.dart';
+import '../features/care/presentation/care_dashboard_screen.dart';
 
 class AppRouter {
   static const String landing = '/';
@@ -20,17 +21,41 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name ?? '/');
     switch (uri?.path) {
+      case '/review/patient':
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CareDashboardScreen(previewRole: 'user'),
+        );
+      case '/review/doctor':
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CareDashboardScreen(previewRole: 'doctor'),
+        );
+      case '/assistant':
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const DashboardScreen(),
+        );
       case '/forgot-password':
-        return MaterialPageRoute(settings: settings, builder: (_) => const PasswordRecoveryScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const PasswordRecoveryScreen(),
+        );
       case '/reset-password':
-        return MaterialPageRoute(settings: settings, builder: (_) => PasswordRecoveryScreen(
-          isReset: true, token: uri?.queryParameters['token'], email: uri?.queryParameters['email']));
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PasswordRecoveryScreen(
+            isReset: true,
+            token: uri?.queryParameters['token'],
+            email: uri?.queryParameters['email'],
+          ),
+        );
       case landing:
         return MaterialPageRoute(builder: (_) => const LandingScreen());
       case auth:
         return MaterialPageRoute(builder: (_) => const AuthScreen());
       case dashboard:
-        return MaterialPageRoute(builder: (_) => const DashboardScreen());
+        return MaterialPageRoute(builder: (_) => const CareDashboardScreen());
       case profile:
         return MaterialPageRoute(builder: (_) => const HealthProfileScreen());
       case risk:
@@ -42,9 +67,7 @@ class AppRouter {
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
+            body: Center(child: Text('No route defined for ${settings.name}')),
           ),
         );
     }

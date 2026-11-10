@@ -10,6 +10,7 @@ class AuthState {
   final String? userEmail;
   final String? errorMessage;
   final bool isLoading;
+  final String role;
 
   AuthState({
     this.isAuthenticated = false,
@@ -17,6 +18,7 @@ class AuthState {
     this.userEmail,
     this.errorMessage,
     this.isLoading = false,
+    this.role = 'user',
   });
 
   AuthState copyWith({
@@ -25,6 +27,7 @@ class AuthState {
     String? userEmail,
     String? errorMessage,
     bool? isLoading,
+    String? role,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
@@ -32,6 +35,7 @@ class AuthState {
       userEmail: userEmail ?? this.userEmail,
       errorMessage: errorMessage ?? this.errorMessage,
       isLoading: isLoading ?? this.isLoading,
+      role: role ?? this.role,
     );
   }
 }
@@ -59,6 +63,7 @@ class AuthNotifier extends Notifier<AuthState> {
         isAuthenticated: true,
         userName: profile.name,
         userEmail: profile.email,
+        role: profile.role,
       );
     } catch (e) {
       try {
@@ -80,6 +85,7 @@ class AuthNotifier extends Notifier<AuthState> {
         isAuthenticated: true,
         userName: profile.name,
         userEmail: profile.email,
+        role: profile.role,
       );
     } on DioException catch (e) {
       final msg = e.response?.data["detail"] ?? "Invalid email or password";
@@ -89,10 +95,20 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(
+    String name,
+    String email,
+    String password, {
+    String accountType = 'patient',
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      await _authApi.register(name: name, email: email, password: password);
+      await _authApi.register(
+        name: name,
+        email: email,
+        password: password,
+        accountType: accountType,
+      );
       await login(email, password);
     } on DioException catch (e) {
       final msg = e.response?.data["detail"] ?? "Registration failed";
@@ -111,5 +127,6 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 }
 
-final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
-
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);

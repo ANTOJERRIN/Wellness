@@ -2,7 +2,7 @@
 import logging
 import httpx
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 from pydantic import BaseModel, Field, ValidationError
 from app.core.config import settings
 
@@ -45,6 +45,9 @@ def generate_health_answer(prompt: str) -> HealthAnswer:
         raise
     except (httpx.TimeoutException, TimeoutError):
         raise GeminiUnavailable("timeout") from None
+    except errors.APIError as error:
+        reason = {401: 'authentication_failed', 403: 'access_denied', 404: 'model_unavailable', 429: 'rate_limited'}.get(error.code, 'service_unavailable')
+        raise GeminiUnavailable(reason) from None
     except (ValidationError, ValueError, TypeError):
         raise GeminiUnavailable("invalid_response") from None
     except Exception as error:

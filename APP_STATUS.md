@@ -1,6 +1,6 @@
 # Wellness implementation status
 
-Reviewed 2026-11-08 against the local source tree.
+Reviewed 2026-11-10 against the local source tree.
 
 ## Overall assessment
 
@@ -10,14 +10,15 @@ its presence does not mean it serves the Flutter application.
 
 | Area | Current implementation | Remaining work |
 | --- | --- | --- |
-| Authentication | Registration, bcrypt passwords, login, access/refresh tokens, logout, account lockout, audit events | Rate limiting, concurrent refresh handling, production password policy review |
-| Session security | Unique token identifiers, refresh rotation, inactive-user rejection, password reset revocation | Atomic refresh rotation under concurrent requests; hashed refresh-token storage |
+| Authentication | Registration, bcrypt passwords, login, access/refresh tokens, logout, account lockout, audit events, database-backed authentication rate limits | Production password policy and trusted-proxy configuration review |
+| Session security | Unique token identifiers, atomic refresh rotation, refresh-token digests, inactive-user rejection, password reset revocation, shared Flutter refresh requests | PostgreSQL integration verification and legacy-session rollout |
 | Health profile | Authenticated profile read/update and persistent medical fields | Data retention, export/deletion, privacy and access review |
+| Patient and doctor dashboards | Real account summaries, patient/doctor signup, private consultation requests/messages, assigned-doctor acceptance/closure, labeled public review previews | Operator approval of doctor accounts; appointments, video, notifications and broader care operations |
 | Chat assistant | Persisted sessions/history, profile context, Google Gen AI SDK, schema-constrained responses, visible persistent fallback labels | Confirm model access and verify real AI responses with credentials; expand evaluation |
 | Cardiac risk | Prediction endpoint, bundled model loader, mathematical fallback | Model cannot load in the minimal dependency environment because scikit-learn is missing; pandas is also absent from requirements. Model provenance, feature alignment and validation remain unverified. Fallback score must not be treated as a validated probability |
 | Specialist recommendations | Rule-based symptom matching and Flutter screen | Broader evaluation and emergency-routing review |
 | Hospital search | State search, optional external API, curated fallback records | Verify live API integration and data freshness; location/distance search is not implemented |
-| Password reset | SMTP delivery, Flutter request/reset screens, hash-based links, expiry, atomic token consumption and session revocation | Configure SMTP credentials and verify delivery against the chosen provider; rate limiting remains pending |
+| Password reset | SMTP delivery, Flutter request/reset screens, hash-based links, expiry, atomic token consumption, session revocation and request limits | Configure SMTP credentials and verify delivery against the chosen provider |
 | Contact | Validation, persistent submissions, reference ID, and database failure handling | Staff inbox UI/notification integration and retention policy |
 | Newsletter | Persistent subscription and duplicate handling | Double opt-in, unsubscribe and delivery integration |
 | Deployment | Configurable Flutter API URL, backend environment validation, health endpoints | Real hosting, HTTPS domains, credentials, migrations, backups and monitoring |
@@ -40,11 +41,11 @@ its presence does not mean it serves the Flutter application.
 
 ## Verification
 
-- Backend: **31 tests passed**, including refresh replay, repeated login uniqueness,
+- Backend: **43 tests passed**, including consultation workflows/roles/revocation, provider diagnostics, concurrent refresh/rate limits, cross-user isolation, refresh replay, repeated login uniqueness,
   inactive-user refresh, password reset revocation, malformed AI response fallback,
   production configuration and readiness failure.
 - Gemini tests use mocks. No real model request or clinical accuracy validation was performed.
-- Flutter: **12 widget/smoke tests passed** using `flutter test --no-pub`, including password recovery, reset deep links and chat source metadata.
+- Flutter: **21 tests passed** using `flutter test --no-pub`, including patient/doctor dashboards, sample conversation navigation, private-dashboard sign-in, concurrent token refresh, transient failure handling, password recovery, reset deep links and chat source metadata.
 - Flutter static analysis: **no issues found** after speech API/lint cleanup.
 - Flutter release web build: **passed** with a placeholder hosted API URL; output is
   `frontend/build/web`. This artifact verifies compilation and requires the real API
@@ -94,7 +95,7 @@ HTTPS origin. Set `FRONTEND_URL` to that public HTTPS frontend address. Use an e
 1. Configure and verify SMTP delivery; add a staff interface for persisted contact submissions.
 2. Verify the configured Gemini model with real credentials and expand AI response evaluation.
 3. Resolve and validate the ML pipeline rather than silently substituting unvalidated scores.
-4. Add rate limiting, atomic refresh rotation and cross-user authorization tests.
+4. Verify authentication hardening on the production database and configure trusted proxy addresses.
 5. Add database migrations, retention controls, deployment configuration and backups.
 6. Consolidate or explicitly retire the legacy stack and correct contradictory README privacy claims.
 
@@ -153,7 +154,7 @@ handling were verified with mocks; no real emails were sent. Release compilation
 **passed**, including the Wasm dry run. The generated web artifact remains configured
 with a placeholder API URL and must be rebuilt with the real backend URL for deployment.
 
-The next planned implementation is ML pipeline validation and API rate/session hardening.
+ML pipeline validation remains pending. API rate/session hardening is covered by the fourth pass below.
 
 ## Third implementation pass: Gemini migration and fallback visibility
 
@@ -183,3 +184,102 @@ data or real credentials. Live model access and output quality remain unverified
 Current verification: **31 backend tests**, **12 Flutter tests**, and clean Flutter
 analysis. **Release web compilation passed**, including the Wasm dry run. Build
 output uses the placeholder API URL and requires the real URL before deployment.
+
+## Fourth implementation pass: authentication and session hardening
+
+- Authentication endpoints now enforce fixed-window limits in the existing
+  `rate_limits` database table. Counters are atomic across workers sharing a database;
+  exhausted windows return HTTP 429 with `Retry-After`, and database failures return 503.
+  Stale counters are pruned on successful requests.
+- Limits per client address: login 10/minute, registration 5/5 minutes, password
+  recovery 5/15 minutes, reset attempts 10/15 minutes, refresh/logout 60/minute,
+  email checks 20/minute. GET/POST email checks share a counter. Other API routes
+  are not covered by this authentication limiter.
+- Client addresses come from the ASGI connection. The application does not parse
+  forwarded headers. Configure Uvicorn's trusted proxy addresses explicitly when
+  deploying behind a proxy; only trust infrastructure that replaces client headers.
+  Clients behind the same address share limits. Counter keys hash the address and
+  contain no request bodies, email addresses or tokens.
+- New sessions store SHA-256 refresh-token digests. Refresh consumes the digest
+  with a conditional database update that rechecks session expiry, activity and
+  user activity. Exactly one concurrent request can rotate a given token.
+  Rotating tokens does not extend the original database session expiry, and the
+  refreshed cookie lifetime now reflects that remaining expiry.
+- Access authentication also requires the stored session owner to match the JWT
+  subject. Tests cover cross-user chat reads, writes, deletion and listing.
+- Flutter shares one refresh operation across parallel 401 responses, reuses the
+  new access token for delayed failures, and retries each request once while
+  preserving its request options. HTTP 429, server outages and retry failures
+  preserve saved tokens; refresh rejection with HTTP 401 clears the session.
+
+Rollout: the existing session column already holds a digest without a schema change.
+Previously stored raw refresh tokens are deliberately rejected; users of those
+sessions must sign in again when their access token expires. Existing raw database
+values are not rewritten automatically. Revoke or purge old sessions as part of
+deployment to remove those stored credentials.
+
+Verification: **37 backend tests passed** against SQLite, including forced
+simultaneous refresh reads (one success, one HTTP 401), eight concurrent limit
+requests (exactly three admitted), limit expiry, spoofed-header rejection,
+digest storage and cross-user isolation. The two limiter tests also passed after
+the final stale-counter cleanup adjustment. **17 Flutter tests passed**, including
+parallel/delayed 401 handling, token retention on HTTP 429/503, logout on refresh
+rejection and retention after a failed retry. **Flutter analysis found no issues.**
+PostgreSQL and hosted proxy behavior have not been exercised. The release web
+build documented above is from the earlier pass; it was not rebuilt in this pass.
+
+Remaining priorities: ML model provenance/feature validation, live Gemini and SMTP
+verification, contact staff tooling, migrations/retention, deployment/backups and
+legacy documentation cleanup. This pass does not make the application production ready.
+
+## Local preview repair (2026-11-10)
+
+- Built a fresh release with the real local API URL and local CanvasKit assets:
+  `flutter build web --release --no-pub --no-web-resources-cdn --pwa-strategy=none --dart-define=API_BASE_URL=http://127.0.0.1:9005/api`.
+- Replaced the debug server with a static server for `frontend/build/web` on
+  port 9004. Review at `http://localhost:9004` while that server is running.
+- Added a visible startup indicator, first-frame completion handling, and a retry
+  state for initialization errors or timeouts. CanvasKit loads from this server.
+- Release compilation and the Wasm dry run passed. Verified the release bundle,
+  local JS/Wasm/font assets and backend readiness all return HTTP 200.
+- A fresh isolated headless Chrome run rendered the actual landing page, including
+  navigation, Login, Try Wellness, Find Specialist and the feature cards. Screenshot:
+  `frontend/build/preview.png`. This confirms rendering, not every application flow.
+
+## Patient/doctor dashboards and AI diagnostics (2026-11-10)
+
+- Added a distinct account dashboard instead of opening directly into chat after
+  sign-in. Real summaries show consultation counts, profile completion and chat
+  history counts from the current account. The existing assistant remains accessible.
+- Added separate patient and doctor signup choices. Doctor applications remain
+  `doctor_pending` until an operator independently checks credentials and approves
+  app access with `backend/manage_doctors.py`. Signup cannot grant doctor privileges.
+- Patients can select an approved active doctor and submit a consultation request.
+  Both participants can read/send private messages. Only the assigned approved
+  doctor can accept/close the consultation. Closed consultations remain readable
+  and cannot receive more messages or reopen. Revoked doctors lose access.
+- Added additive consultation/message tables, role/participant checks and request
+  limits. No patient health profile or AI history is automatically shared with doctors.
+- Added labeled sample previews at `/#/review/patient` and `/#/review/doctor`, linked
+  from the landing page. Sample conversations are read-only and never access real
+  patient data. Private dashboards require sign-in.
+- Added a generic AI connection probe on the dashboard and in `backend/check_ai.py`.
+  Provider errors now distinguish credentials, access, model availability and quota
+  failures without exposing provider exception text.
+- Created a local ignored `backend/.env` template with a persistent random JWT
+  secret and an empty AI key. Backend restarted with new endpoints. Existing local
+  sessions signed with the earlier per-process secret require sign-in again.
+- Live AI is **not fixed or verified yet**: `GOOGLE_AI_API_KEY` remains empty.
+  The app accurately reports this instead of claiming an active provider.
+
+Verification: **43 backend tests passed**, **21 Flutter tests passed**, **Flutter
+analysis found no issues**, and **release compilation/Wasm dry run passed**.
+Fresh isolated Chrome runs rendered both compiled dashboard previews; screenshots
+are `frontend/build/patient-dashboard.png` and `frontend/build/doctor-dashboard.png`.
+Backend readiness and the new compiled bundle return HTTP 200. Role and privacy
+workflows were exercised with isolated test accounts; no real doctor was approved
+and no real patient messages were sent by these checks.
+
+See [backend/CARE_SETUP.md](backend/CARE_SETUP.md) for local review links, doctor
+approval/revocation and provider configuration. Appointments, video calls and
+message notifications remain unimplemented; this pass adds asynchronous care messaging.

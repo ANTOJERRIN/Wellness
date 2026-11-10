@@ -12,13 +12,14 @@ from app.schemas.pydantic_objs import UserRegister, UserLogin, Token, UserRespon
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.config import settings
 from app.core.mail import send_password_reset_email, EmailDeliveryError
+from app.core.rate_limit import limit_auth_requests
 from starlette.concurrency import run_in_threadpool
 
 # Setup local logger
 logger = logging.getLogger("auth_api")
 logging.basicConfig(level=logging.INFO)
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"], dependencies=[Depends(limit_auth_requests)])
 
 def log_security_event(db: DBSession, event_type: str, severity: str, details: str, user_id: int = None, ip: str = None, ua: str = None):
     """Utility to log security events to the database for audit tracking."""
@@ -57,7 +58,7 @@ async def register(user_in: UserRegister, request: Request, db: DBSession = Depe
             email=user_in.email.lower(),
             password=hashed_password,
             confirmpassword=hashed_password,
-            role="user"
+            role="doctor_pending" if user_in.accountType == "doctor" else "user"
         )
         db.add(new_user)
         db.commit()
@@ -141,7 +142,7 @@ async def login(
             id=session_id,
             userId=user.id,
             token=access_token,
-            refreshToken=refresh_token,
+            refreshToken=hashlib.sha256(refresh_token.encode()).hexdigest(),
             expiresAt=expires_at,
             ipAddress=ip,
             userAgent=ua,
@@ -222,8 +223,9 @@ async def refresh(
         
         # Find session from DB
 
+        token_digest = hashlib.sha256(refresh_token.encode()).hexdigest()
         session = db.query(UserSession).filter(
-            UserSession.refreshToken == refresh_token,
+            UserSession.refreshToken == token_digest,
             UserSession.isActive == True,
             UserSession.expiresAt > datetime.utcnow()
         ).first()
@@ -242,10 +244,22 @@ async def refresh(
         new_access_token = create_access_token(user_id)
         new_refresh_token = create_refresh_token(user_id)
 
-        # Update session in DB
-        session.token = new_access_token
-        session.refreshToken = new_refresh_token
-        session.lastUsedAt = datetime.utcnow()
+        # Compare-and-swap: only one worker can consume the current digest.
+        # Re-check expiry, activity and user state at the moment of the write.
+        updated = db.query(UserSession).filter(
+            UserSession.id == session.id,
+            UserSession.refreshToken == token_digest,
+            UserSession.isActive == True,
+            UserSession.expiresAt > datetime.utcnow(),
+            UserSession.userId.in_(db.query(User.id).filter(User.id == user_id, User.isActive == True)),
+        ).update({
+            "token": new_access_token,
+            "refreshToken": hashlib.sha256(new_refresh_token.encode()).hexdigest(),
+            "lastUsedAt": datetime.utcnow(),
+        }, synchronize_session=False)
+        if updated != 1:
+            db.rollback()
+            raise HTTPException(status_code=401, detail="Refresh token already used or session inactive")
         db.commit()
 
         # Reset cookie
@@ -255,7 +269,7 @@ async def refresh(
             httponly=True,
             secure=settings.COOKIE_SECURE,
             samesite="strict",
-            max_age=60 * 60 * 24 * settings.REFRESH_TOKEN_EXPIRE_DAYS
+            max_age=max(0, int((session.expiresAt - datetime.utcnow()).total_seconds()))
         )
 
         return {
@@ -266,7 +280,8 @@ async def refresh(
 
     except SQLAlchemyError as e:
         db.rollback()
-        logger.error(f"Database error during refresh: {e}")
+        # SQLAlchemy exception strings can contain bound access tokens.
+        logger.error("Database error during refresh")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Session database lookup failed."

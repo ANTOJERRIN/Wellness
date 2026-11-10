@@ -1,6 +1,8 @@
 # 🩺 Wellness
 
 Current implementation status and verification: [APP_STATUS.md](APP_STATUS.md).
+Patient/doctor consultation setup, dashboard review links and AI configuration:
+[backend/CARE_SETUP.md](backend/CARE_SETUP.md).
 The primary application is Flutter (`frontend/`) with FastAPI (`backend/`);
 the root Next.js application is a separate legacy implementation.
 

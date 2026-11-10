@@ -184,6 +184,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           constraints: const BoxConstraints(maxWidth: 800),
           child: Column(
             children: [
+              Wrap(alignment: WrapAlignment.center, spacing: 12, children: [
+                TextButton.icon(onPressed: () => Navigator.pushNamed(context, '/review/patient'), icon: const Icon(Icons.dashboard_outlined), label: const Text('Review patient dashboard')),
+                TextButton.icon(onPressed: () => Navigator.pushNamed(context, '/review/doctor'), icon: const Icon(Icons.medical_services_outlined), label: const Text('Review doctor dashboard')),
+              ]),
+              const SizedBox(height: 24),
               // Badge
               Container(
                 padding: const EdgeInsets.symmetric(
